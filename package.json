@@ -10,6 +10,7 @@
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "axios": "^1.2.2",
     "leaflet": "^1.9.3",
     "leaflet-draw": "^1.0.4",
     "react": "^18.2.0",
