@@ -3,36 +3,59 @@ import { makeRequest } from "../Axios";
 //Dummy geoJson Data
 const geoJson = [
   {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [74.323149, 31.48224],
+              [74.324315, 31.482375],
+              [74.324319, 31.481324],
+              [74.322801, 31.481108],
+              [74.322621, 31.481588],
+              [74.323149, 31.48224],
+            ],
+          ],
+        },
+      },
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [74.32219, 31.480934],
+              [74.32219, 31.481586],
+              [74.32364, 31.481586],
+              [74.32364, 31.480934],
+              [74.32219, 31.480934],
+            ],
+          ],
+        },
+      },
+    ],
+  },
+  {
     type: "Feature",
     properties: {},
     geometry: {
       type: "Polygon",
       coordinates: [
         [
-          [-119.223633, 50.261254],
-          [-114.609375, 50.429518],
-          [-113.730469, 48.04871],
-          [-111.577148, 46.589069],
-          [-118.564453, 44.527843],
-          [-121.772461, 48.078079],
-          [-119.223633, 50.261254],
+          [74.320503, 31.481449],
+          [74.322241, 31.483018],
+          [74.323324, 31.482876],
+          [74.324032, 31.481751],
+          [74.32259, 31.480021],
+          [74.321136, 31.480762],
+          [74.320627, 31.48122],
+          [74.320503, 31.481449],
         ],
-      ],
-    },
-  },
-  {
-    type: "Feature",
-    properties: {
-      name: "Coors Field",
-      amenity: "Baseball Stadium",
-      popupContent: "This is where the Rockies play!",
-    },
-    geometry: {
-      type: "LineString",
-      coordinates: [
-        [-100, 40],
-        [-105, 45],
-        [-110, 55],
       ],
     },
   },
@@ -43,11 +66,13 @@ const geoJson = [
       type: "Polygon",
       coordinates: [
         [
-          [-99.555442, 49.079432],
-          [-99.555442, 51.492239],
-          [-96.598679, 51.492239],
-          [-96.598679, 49.079432],
-          [-99.555442, 49.079432],
+          [74.322938, 31.482748],
+          [74.324226, 31.483036],
+          [74.324832, 31.482272],
+          [74.324585, 31.481288],
+          [74.323877, 31.480447],
+          [74.322901, 31.481366],
+          [74.322938, 31.482748],
         ],
       ],
     },
@@ -55,14 +80,36 @@ const geoJson = [
   {
     type: "Feature",
     properties: {},
-    geometry: { type: "Point", coordinates: [-89.824219, 49.553726] },
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [74.321732, 31.48127],
+          [74.323936, 31.480474],
+          [74.323459, 31.479637],
+          [74.320755, 31.479573],
+          [74.321313, 31.480675],
+          [74.321732, 31.48127],
+        ],
+      ],
+    },
   },
   {
     type: "Feature",
     properties: {},
     geometry: {
-      type: "Point",
-      coordinates: [-104.99404, 39.75621],
+      type: "Polygon",
+      coordinates: [
+        [
+          [74.320906, 31.483416],
+          [74.324832, 31.483311],
+          [74.32495, 31.482711],
+          [74.324687, 31.482263],
+          [74.324531, 31.481636],
+          [74.320954, 31.482597],
+          [74.320906, 31.483416],
+        ],
+      ],
     },
   },
 ];
@@ -78,55 +125,34 @@ const MapService = {
     }
   },
   // return Dummy data.
-  getFieldWithPoint: async () => {
+  getFieldWithPoint: async (wktData: string) => {
     try {
-      // const response: any = await makeRequest(
-      //   `fetch-fields-for-a-point`,
-      //   "GET",
-      //   {},
-      //   {
-      //     latitude: 31.47704430446457,
-      //     longitude: 74.37510786779589,
-      //   }
-      // );
-      return {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [
-                  [74.323149, 31.48224],
-                  [74.324315, 31.482375],
-                  [74.324319, 31.481324],
-                  [74.322801, 31.481108],
-                  [74.322621, 31.481588],
-                  [74.323149, 31.48224],
-                ],
-              ],
-            },
-          },
-          {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [
-                  [74.32219, 31.480934],
-                  [74.32219, 31.481586],
-                  [74.32364, 31.481586],
-                  [74.32364, 31.480934],
-                  [74.32219, 31.480934],
-                ],
-              ],
-            },
-          },
-        ],
-      };
+      // const response: any = await makeRequest(`/fetch-fields-for-a-point`, 'POST',{},{wkt:wktData});
+      return geoJson[0];
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+  getFieldWithPolygon: async (wktData: string) => {
+    try {
+      // const response: any = await makeRequest(`/register-field-boundary`, 'POST',{},{wkt:wktData});
+      return geoJson[1];
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+  getFieldWithRectangle: async (wktData: string) => {
+    try {
+      // const response: any = await makeRequest(`/fetch-bounding-box-fields`, 'POST',{},{wkt:wktData});
+      return geoJson[2];
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+  getOverlappingFields: async (wktData: string) => {
+    try {
+      // const response: any = await makeRequest(`/fetch-overlapping-fields`, 'POST',{},{wkt:wktData});
+      return geoJson[3];
     } catch (error: any) {
       throw error?.response?.data;
     }

@@ -93,4 +93,5 @@ export const toWKT = (layer: any) => {
   ) {
     return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
   }
+  return '';
 };

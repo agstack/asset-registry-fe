@@ -12,7 +12,7 @@
   border-radius: 5px 5px 5px 5px;
 }
 
-svg {
+.search-icon {
   margin: 0 8px;
   color: grey;
 }

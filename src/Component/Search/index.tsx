@@ -34,7 +34,7 @@ const Search = (props: IProps) => {
           if (e.key === "Enter") onSearch(searchText);
         }}
       />
-      <FaSearch onClick={() => onSearch(searchText)} />
+      <FaSearch className="search-icon" onClick={() => onSearch(searchText)} />
     </div>
   );
 };

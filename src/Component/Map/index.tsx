@@ -10,6 +10,7 @@ import Search from "../Search";
 import $ from "jquery";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
+import ReactJson from "react-json-view";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -21,25 +22,35 @@ L.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
-  const [data, setData] = useState("");
   const [field, setField] = useState<any>(null);
 
   const [center, setCenter] = useState<L.LatLngExpression>([
     31.481588, 74.322621,
   ]);
 
-  const fetchField = async (layer: any) => {
-    const data = await MapService.getFieldWithPoint();
-    setField(data);
-  };
-
-  const convertToWKT = (layer: any) => {
-    const data = toWKT(layer);
-    setData("WKT:   " + data || "");
+  const fetchField = async (layer: any, type: string) => {
+    const wktData = toWKT(layer);
+    if (wktData !== "") {
+      let data;
+      if (type === "rectangle") {
+        data = await MapService.getFieldWithRectangle(wktData);
+      } else if (type === "polygon" || type === "polyline") {
+        data = await MapService.getFieldWithPolygon(wktData);
+      } else if (
+        type === "marker" ||
+        type === "circlemarker" ||
+        type === "circle"
+      ) {
+        data = await MapService.getFieldWithPoint(wktData);
+      }
+      setField(data);
+    } else {
+      console.log("Unable to convert layer into WKT!");
+    }
   };
 
   return (
-    <>
+    <div className="map">
       <MapContainer center={center} zoom={31}>
         <Search setField={setField} />
         <TileLayer
@@ -49,26 +60,22 @@ const Map = () => {
           zoomOffset={0}
           noWrap={true}
         />
-        {field !== null && (
-          <GeoJSON data={field as GeoJSON.FeatureCollection} />
-        )}
+        {field !== null &&
+          (field.type === "FeatureCollection" ? (
+            <GeoJSON data={field as GeoJSON.FeatureCollection} />
+          ) : (
+            <GeoJSON data={field as GeoJSON.Feature} />
+          ))}
         <FeatureGroup>
           <EditControl
             position="topright"
             draw={{}}
             onCreated={(e) => {
               try {
-                setData(
-                  `${e.layerType} 
-                - ${e.layer._latlngs ?? e.layer._latlng} ~~~~~~~~ GeoJSON: 
-                 ${JSON.stringify(e.layer.toGeoJSON(), null, 2)}
-                `
-                );
-                convertToWKT(e.layer);
                 var link = $(
                   '<button style="background: "white"; border-radius: "4px"">Fetch Field</button>'
                 ).click(function () {
-                  fetchField(e.layer);
+                  fetchField(e.layer, e.layerType);
                 })[0];
                 e.layer.bindPopup(link);
               } catch (err) {
@@ -78,8 +85,18 @@ const Map = () => {
           ></EditControl>
         </FeatureGroup>
       </MapContainer>
-      <p>{data}</p>
-    </>
+      <ReactJson
+        src={field ?? {}}
+        quotesOnKeys={false}
+        displayDataTypes={false}
+        displayObjectSize={false}
+        name={""}
+        defaultValue={{}}
+        enableClipboard={false}
+        iconStyle={"square"}
+        theme={"grayscale:inverted"}
+      />
+    </div>
   );
 };
 
