@@ -58,31 +58,24 @@ export const findCenter = (data: any) => {
 
 //Convert leafletDraw data layer to WKT.
 export const toWKT = (layer: any) => {
-  let lng,
-    lat,
-    coords = [];
+  let coords = [];
   if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
     let latlngs = layer.getLatLngs();
     for (var i = 0; i < latlngs.length; i++) {
       let latlngs1 = latlngs[i];
-      if (Array.isArray(latlngs1) && latlngs1.length) {
+      if (Array.isArray(latlngs1)) {
         for (var j = 0; j < latlngs1.length; j++) {
-          coords.push(latlngs1[1] + " " + latlngs1[0]);
-          if (j === 0) {
-            lng = latlngs1[1];
-            lat = latlngs1[0];
+          let l = latlngs1[j];
+          if (!Array.isArray(l) && !Array.isArray(l)) {
+            coords.push(l.lng + " " + l.lat);
           }
         }
-      } else {
-        coords.push(latlngs[i] + " " + latlngs[i]);
-        if (i === 0) {
-          lng = latlngs[1];
-          lat = latlngs[0];
-        }
+      } else if (!Array.isArray(latlngs1)) {
+        coords.push(latlngs1.lng + " " + latlngs1.lat);
       }
     }
     if (layer instanceof L.Polygon) {
-      return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+      return "POLYGON((" + coords.join(",") + "))";
     } else if (layer instanceof L.Polyline) {
       return "LINESTRING(" + coords.join(",") + ")";
     }
@@ -93,5 +86,5 @@ export const toWKT = (layer: any) => {
   ) {
     return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
   }
-  return '';
+  return "";
 };

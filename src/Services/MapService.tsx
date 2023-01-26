@@ -63,18 +63,8 @@ const geoJson = [
     type: "Feature",
     properties: {},
     geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [74.322938, 31.482748],
-          [74.324226, 31.483036],
-          [74.324832, 31.482272],
-          [74.324585, 31.481288],
-          [74.323877, 31.480447],
-          [74.322901, 31.481366],
-          [74.322938, 31.482748],
-        ],
-      ],
+      type: "Point",
+      coordinates: [74.33010, 31.47750],
     },
   },
   {
@@ -136,7 +126,7 @@ const MapService = {
   getFieldWithPolygon: async (wktData: string) => {
     try {
       // const response: any = await makeRequest(`/register-field-boundary`, 'POST',{},{wkt:wktData});
-      return geoJson[1];
+      return geoJson[0];
     } catch (error: any) {
       throw error?.response?.data;
     }
