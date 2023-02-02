@@ -23,6 +23,7 @@ L.Icon.Default.mergeOptions({
 
 const Map = () => {
   const [field, setField] = useState<any>(null);
+  const [json, setJson] = useState<any>(null);
   const [center, setCenter] = useState<L.LatLngExpression>([
     31.481588, 74.322621,
   ]);
@@ -33,6 +34,7 @@ const Map = () => {
     const wktData = toWKT(layer);
     console.log(wktData);
     if (wktData !== "") {
+      setJson({ WKT: wktData });
       let data;
       if (type === "rectangle") {
         data = await MapService.getFieldWithRectangle(wktData);
@@ -45,7 +47,7 @@ const Map = () => {
       ) {
         data = await MapService.getFieldWithPoint(wktData);
       }
-      setField(data);
+      // setField(data);
     } else {
       console.log("Unable to convert layer into WKT!");
     }
@@ -54,6 +56,7 @@ const Map = () => {
   const registerField = async (layer: any, type: string) => {
     const wktData = toWKT(layer);
     if (wktData !== "") {
+      setJson({ WKT: wktData });
       const response = await MapService.registerField(wktData);
       console.log(response);
     } else {
@@ -61,11 +64,16 @@ const Map = () => {
     }
   };
 
+  const setJsonData = (data: any)=>{
+    setField(data);
+    setJson(data);
+  }
+
   return (
     <>
       <div className="map">
         <MapContainer center={center} zoom={31}>
-          <Search setField={setField} />
+          <Search setField={setJsonData} />
           <TileLayer
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
             attribution="Map by Google"
@@ -98,7 +106,7 @@ const Map = () => {
           </FeatureGroup>
         </MapContainer>
         <ReactJson
-          src={field ?? {}}
+          src={json ?? {}}
           quotesOnKeys={false}
           displayDataTypes={false}
           displayObjectSize={false}
