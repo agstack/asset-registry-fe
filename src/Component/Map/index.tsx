@@ -31,6 +31,7 @@ const Map = () => {
 
   const fetchField = async (layer: any, type: string) => {
     const wktData = toWKT(layer);
+    console.log(wktData);
     if (wktData !== "") {
       let data;
       if (type === "rectangle") {
@@ -45,6 +46,16 @@ const Map = () => {
         data = await MapService.getFieldWithPoint(wktData);
       }
       setField(data);
+    } else {
+      console.log("Unable to convert layer into WKT!");
+    }
+  };
+
+  const registerField = async (layer: any, type: string) => {
+    const wktData = toWKT(layer);
+    if (wktData !== "") {
+      const response = await MapService.registerField(wktData);
+      console.log(response);
     } else {
       console.log("Unable to convert layer into WKT!");
     }
@@ -115,7 +126,14 @@ const Map = () => {
             >
               Fetch Field
             </button>
-            <button className="popup-btn">Register Field</button>
+            <button
+              className="popup-btn"
+              onClick={() => {
+                registerField(target.layer, target.layerType);
+              }}
+            >
+              Register Field
+            </button>
           </div>
         </Popover>
       </Overlay>

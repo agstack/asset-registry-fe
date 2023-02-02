@@ -64,7 +64,7 @@ const geoJson = [
     properties: {},
     geometry: {
       type: "Point",
-      coordinates: [74.33010, 31.47750],
+      coordinates: [74.3301, 31.4775],
     },
   },
   {
@@ -143,6 +143,14 @@ const MapService = {
     try {
       // const response: any = await makeRequest(`/fetch-overlapping-fields`, 'POST',{},{wkt:wktData});
       return geoJson[3];
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+  registerField: async (wktData: string) => {
+    try {
+      // const response: any = await makeRequest(`/fetch-overlapping-fields`, 'POST',{},{wkt:wktData});
+      return { success: true };
     } catch (error: any) {
       throw error?.response?.data;
     }
