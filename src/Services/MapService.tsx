@@ -3,42 +3,26 @@ import { makeRequest } from "../Axios";
 //Dummy geoJson Data
 const geoJson = [
   {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [74.323149, 31.48224],
-              [74.324315, 31.482375],
-              [74.324319, 31.481324],
-              [74.322801, 31.481108],
-              [74.322621, 31.481588],
-              [74.323149, 31.48224],
-            ],
-          ],
-        },
-      },
-      {
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [74.32219, 31.480934],
-              [74.32219, 31.481586],
-              [74.32364, 31.481586],
-              [74.32364, 31.480934],
-              [74.32219, 31.480934],
-            ],
-          ],
-        },
-      },
-    ],
+    type: "Feature",
+    properties: {
+      fillColor: "green",
+      opacity: 1,
+      color: "black", //Outline color
+      fillOpacity: 0.6,
+    },
+    geometry: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [74.323149, 31.48224],
+          [74.324315, 31.482375],
+          [74.324319, 31.481324],
+          [74.322801, 31.481108],
+          [74.322621, 31.481588],
+          [74.323149, 31.48224],
+        ],
+      ],
+    },
   },
   {
     type: "Feature",
@@ -74,12 +58,11 @@ const geoJson = [
       type: "Polygon",
       coordinates: [
         [
-          [74.321732, 31.48127],
-          [74.323936, 31.480474],
-          [74.323459, 31.479637],
-          [74.320755, 31.479573],
-          [74.321313, 31.480675],
-          [74.321732, 31.48127],
+          [74.32219, 31.480934],
+          [74.32219, 31.481586],
+          [74.32364, 31.481586],
+          [74.32364, 31.480934],
+          [74.32219, 31.480934],
         ],
       ],
     },
@@ -108,8 +91,11 @@ const MapService = {
   // return Dummy data.
   getField: async (unique_id: any) => {
     try {
-      // const response: any = await makeRequest(`/fetch-field/${unique_id}`, 'GET');
-      return geoJson[0];
+      const response: any = await makeRequest(
+        `/fetch-field/${unique_id}`,
+        "GET"
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -149,8 +135,15 @@ const MapService = {
   },
   registerField: async (wktData: string) => {
     try {
-      // const response: any = await makeRequest(`/fetch-overlapping-fields`, 'POST',{},{wkt:wktData});
-      return { success: true };
+      const response: any = await makeRequest(
+        `/register-field-boundary`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        { wkt: wktData }
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }

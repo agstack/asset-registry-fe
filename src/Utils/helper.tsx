@@ -64,12 +64,17 @@ export const toWKT = (layer: any) => {
     for (var i = 0; i < latlngs.length; i++) {
       let latlngs1 = latlngs[i];
       if (Array.isArray(latlngs1)) {
+        let temp;
         for (var j = 0; j < latlngs1.length; j++) {
           let l = latlngs1[j];
           if (!Array.isArray(l) && !Array.isArray(l)) {
+            if (j === 0) {
+              temp = l.lng + " " + l.lat;
+            }
             coords.push(l.lng + " " + l.lat);
           }
         }
+        coords.push(temp);
       } else if (!Array.isArray(latlngs1)) {
         coords.push(latlngs1.lng + " " + latlngs1.lat);
       }
@@ -87,4 +92,20 @@ export const toWKT = (layer: any) => {
     return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
   }
   return "";
+};
+
+export const fieldStyle = () => {
+  const style = {
+    shapeOptions: {
+      color: "#ff5e6e",
+    },
+  };
+  return {
+    polyline: style,
+    polygon: style,
+    circle: style,
+    circlemarker: style,
+    marker: style,
+    rectangle: style,
+  };
 };

@@ -4,10 +4,10 @@ import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "bootstrap/dist/css/bootstrap.css";
-import L from "leaflet";
+import L, { polygon } from "leaflet";
 import { useState } from "react";
 import Search from "../Search";
-import { toWKT } from "../../Utils/helper";
+import { toWKT, fieldStyle } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
 import { Overlay, Popover } from "react-bootstrap";
@@ -22,6 +22,9 @@ L.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
+  const [alreadyRegisterGeoJson, setAlreadyRegisterGeoJson] =
+    useState<any>(null);
+  const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
   const [field, setField] = useState<any>(null);
   const [json, setJson] = useState<any>(null);
   const [center, setCenter] = useState<L.LatLngExpression>([
@@ -54,20 +57,28 @@ const Map = () => {
   };
 
   const registerField = async (layer: any, type: string) => {
+    setAlreadyRegisterGeoJson(null);
+    setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      setJson({ WKT: wktData });
       const response = await MapService.registerField(wktData);
+      setJson(response);
+      if (response["Geo JSON"]) {
+        setAlreadyRegisterGeoJson(response["Geo JSON"]);
+      } else {
+        setAlreadyRegisterGeoJson(response["Geo JSON registered"]);
+        setRequestedGeoJson(response["Geo JSON requested"]);
+      }
       console.log(response);
     } else {
       console.log("Unable to convert layer into WKT!");
     }
   };
 
-  const setJsonData = (data: any)=>{
-    setField(data);
-    setJson(data);
-  }
+  const setJsonData = (data: any) => {
+    setField(data["Geo JSON"]);
+    setJson({ data });
+  };
 
   return (
     <>
@@ -81,20 +92,80 @@ const Map = () => {
             zoomOffset={0}
             noWrap={true}
           />
-          {field !== null &&
-            (field.type === "FeatureCollection" ? (
-              <GeoJSON data={field as GeoJSON.FeatureCollection} />
-            ) : (
-              <GeoJSON data={field as GeoJSON.Feature} />
-            ))}
+          {alreadyRegisterGeoJson !== null && (
+            <GeoJSON
+              data={alreadyRegisterGeoJson as GeoJSON.Feature}
+              style={{
+                weight: 1.5,
+                fillColor: "#55cf6c",
+                color: "#55cf6c",
+                fillOpacity: 0.5,
+                opacity: 0.9,
+              }}
+            />
+          )}
+          {requestedGeoJson !== null && (
+            <GeoJSON
+              data={requestedGeoJson as GeoJSON.Feature}
+              style={{
+                weight: 1.5,
+                fillColor: "#ff5e6e",
+                color: "#ff5e6e",
+                fillOpacity: 0.5,
+                opacity: 0.9,
+              }}
+            />
+          )}
+          {field !== null && (
+            <GeoJSON
+              data={field as GeoJSON.Feature}
+              style={{
+                weight: 1.5,
+                fillColor: "#55cf6c",
+                color: "#55cf6c",
+                fillOpacity: 0.5,
+                opacity: 0.9,
+              }}
+            />
+          )}
           <FeatureGroup>
             <EditControl
               position="topright"
-              draw={{}}
+              draw={{
+                polyline: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+                polygon: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+                circle: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+                circlemarker: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+                marker: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+                rectangle: {
+                  shapeOptions: {
+                    color: "#ff5e6e",
+                  },
+                },
+              }}
               onCreated={(e) => {
                 try {
                   e.layer.on("click", (layer: any) => {
-                    console.log(e);
                     setTarget(e);
                     setShowPopup(true);
                   });
@@ -129,19 +200,21 @@ const Map = () => {
             <button
               className="popup-btn"
               onClick={() => {
-                fetchField(target.layer, target.layerType);
+                // fetchField(target.layer, target.layerType);
               }}
             >
               Fetch Field
             </button>
-            <button
-              className="popup-btn"
-              onClick={() => {
-                registerField(target.layer, target.layerType);
-              }}
-            >
-              Register Field
-            </button>
+            {target?.layerType === "polygon" && (
+              <button
+                className="popup-btn"
+                onClick={() => {
+                  registerField(target.layer, target.layerType);
+                }}
+              >
+                Register Field
+              </button>
+            )}
           </div>
         </Popover>
       </Overlay>

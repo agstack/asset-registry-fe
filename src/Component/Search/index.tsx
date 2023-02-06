@@ -19,7 +19,7 @@ const Search = (props: IProps) => {
   const onSearch = async (searchText: string) => {
     const data = await MapService.getField(searchText);
     props.setField(data);
-    const centerPoint = findCenter(data);
+    const centerPoint = findCenter(data["Geo JSON"]);
     if (centerPoint)
       if (centerPoint instanceof L.LatLngBounds) map.fitBounds(centerPoint);
       else map.setView(centerPoint);
