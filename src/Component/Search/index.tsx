@@ -9,7 +9,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 
 interface IProps {
-  setField: (e: any) => void;
+  setJson: (e: any) => void;
 }
 
 const Search = (props: IProps) => {
@@ -18,11 +18,12 @@ const Search = (props: IProps) => {
 
   const onSearch = async (searchText: string) => {
     const data = await MapService.getField(searchText);
-    props.setField(data);
     const centerPoint = findCenter(data["Geo JSON"]);
-    if (centerPoint)
+    if (centerPoint) {
       if (centerPoint instanceof L.LatLngBounds) map.fitBounds(centerPoint);
       else map.setView(centerPoint);
+    }
+    props.setJson(data);
   };
 
   return (

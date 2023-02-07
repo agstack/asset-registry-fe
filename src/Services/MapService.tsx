@@ -14,12 +14,12 @@ const geoJson = [
       type: "Polygon",
       coordinates: [
         [
-          [74.323149, 31.48224],
-          [74.324315, 31.482375],
-          [74.324319, 31.481324],
-          [74.322801, 31.481108],
-          [74.322621, 31.481588],
-          [74.323149, 31.48224],
+          [74.320503, 31.481449],
+          [74.322241, 31.483018],
+
+          [74.321136, 31.480762],
+          [74.320627, 31.48122],
+          [74.320503, 31.481449],
         ],
       ],
     },
@@ -58,11 +58,14 @@ const geoJson = [
       type: "Polygon",
       coordinates: [
         [
-          [74.32219, 31.480934],
-          [74.32219, 31.481586],
-          [74.32364, 31.481586],
-          [74.32364, 31.480934],
-          [74.32219, 31.480934],
+          [
+            [74.320503, 31.481449],
+            [74.322241, 31.483018],
+            [74.323324, 31.482876],
+            [74.324032, 31.481751],
+
+            [74.320503, 31.481449],
+          ],
         ],
       ],
     },
@@ -93,7 +96,10 @@ const MapService = {
     try {
       const response: any = await makeRequest(
         `/fetch-field/${unique_id}`,
-        "GET"
+        "GET",
+        {
+          "Access-Control-Allow-Origin": "*",
+        }
       );
       return response.data;
     } catch (error: any) {
@@ -103,32 +109,45 @@ const MapService = {
   // return Dummy data.
   getFieldWithPoint: async (wktData: string) => {
     try {
-      // const response: any = await makeRequest(`/fetch-fields-for-a-point`, 'POST',{},{wkt:wktData});
-      return geoJson[0];
-    } catch (error: any) {
-      throw error?.response?.data;
-    }
-  },
-  getFieldWithPolygon: async (wktData: string) => {
-    try {
-      // const response: any = await makeRequest(`/register-field-boundary`, 'POST',{},{wkt:wktData});
-      return geoJson[0];
+      const response: any = await makeRequest(
+        `/fetch-fields-for-a-point`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        { wkt: wktData }
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }
   },
   getFieldWithRectangle: async (wktData: string) => {
     try {
-      // const response: any = await makeRequest(`/fetch-bounding-box-fields`, 'POST',{},{wkt:wktData});
-      return geoJson[2];
+      const response: any = await makeRequest(
+        `/fetch-bounding-box-fields`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        { wkt: wktData }
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }
   },
   getOverlappingFields: async (wktData: string) => {
     try {
-      // const response: any = await makeRequest(`/fetch-overlapping-fields`, 'POST',{},{wkt:wktData});
-      return geoJson[3];
+      const response: any = await makeRequest(
+        `/fetch-overlapping-fields`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        { wkt: wktData }
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }

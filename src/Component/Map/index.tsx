@@ -4,10 +4,10 @@ import { EditControl } from "react-leaflet-draw";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "bootstrap/dist/css/bootstrap.css";
-import L, { polygon } from "leaflet";
-import { useState } from "react";
+import L from "leaflet";
+import { useRef, useState } from "react";
 import Search from "../Search";
-import { toWKT, fieldStyle } from "../../Utils/helper";
+import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
 import { Overlay, Popover } from "react-bootstrap";
@@ -32,17 +32,17 @@ const Map = () => {
   ]);
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState<any>(null);
+  const mapRef = useRef<any>(null);
 
   const fetchField = async (layer: any, type: string) => {
     const wktData = toWKT(layer);
     console.log(wktData);
     if (wktData !== "") {
-      setJson({ WKT: wktData });
       let data;
       if (type === "rectangle") {
         data = await MapService.getFieldWithRectangle(wktData);
       } else if (type === "polygon" || type === "polyline") {
-        data = await MapService.getFieldWithPolygon(wktData);
+        data = await MapService.getOverlappingFields(wktData);
       } else if (
         type === "marker" ||
         type === "circlemarker" ||
@@ -50,7 +50,8 @@ const Map = () => {
       ) {
         data = await MapService.getFieldWithPoint(wktData);
       }
-      // setField(data);
+      setJson({ data });
+      setField(data["Geo JSON"]);
     } else {
       console.log("Unable to convert layer into WKT!");
     }
@@ -69,22 +70,25 @@ const Map = () => {
         setAlreadyRegisterGeoJson(response["Geo JSON registered"]);
         setRequestedGeoJson(response["Geo JSON requested"]);
       }
-      console.log(response);
     } else {
       console.log("Unable to convert layer into WKT!");
     }
   };
 
   const setJsonData = (data: any) => {
-    setField(data["Geo JSON"]);
     setJson({ data });
+    const geojson = data["Geo JSON"];
+    setField(geojson);
+    if (mapRef.current) {
+      mapRef.current.clearLayers().addData(geojson);
+    }
   };
 
   return (
     <>
       <div className="map">
         <MapContainer center={center} zoom={31}>
-          <Search setField={setJsonData} />
+          <Search setJson={setJsonData} />
           <TileLayer
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
             attribution="Map by Google"
@@ -118,6 +122,8 @@ const Map = () => {
           )}
           {field !== null && (
             <GeoJSON
+              ref={mapRef}
+              key={field.toString()}
               data={field as GeoJSON.Feature}
               style={{
                 weight: 1.5,
@@ -200,7 +206,7 @@ const Map = () => {
             <button
               className="popup-btn"
               onClick={() => {
-                // fetchField(target.layer, target.layerType);
+                fetchField(target.layer, target.layerType);
               }}
             >
               Fetch Field
