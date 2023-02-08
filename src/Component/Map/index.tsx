@@ -10,7 +10,9 @@ import Search from "../Search";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
-import { Overlay, Popover } from "react-bootstrap";
+import { Button, Overlay, Popover } from "react-bootstrap";
+import Control from "react-leaflet-custom-control";
+import { BsTrash2 } from "react-icons/bs";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -96,6 +98,14 @@ const Map = () => {
             zoomOffset={0}
             noWrap={true}
           />
+          <Control prepend position="topright">
+            <Button color="inherit" onClick={()=>{
+              setJson(null);
+              setField(null);
+            }}>
+              <BsTrash2 />
+            </Button>
+          </Control>
           {alreadyRegisterGeoJson !== null && (
             <GeoJSON
               data={alreadyRegisterGeoJson as GeoJSON.Feature}
