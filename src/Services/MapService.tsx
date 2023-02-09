@@ -91,55 +91,16 @@ const geoJson = [
 ];
 
 const MapService = {
-  // return Dummy data.
   getField: async (unique_id: any) => {
     try {
-      // const response: any = await makeRequest(
-      //   `/fetch-field/${unique_id}`,
-      //   "GET",
-      //   {
-      //     "Access-Control-Allow-Origin": "*",
-      //   }
-      // );
-      return {
-        "GEO Id": "e49e5885493e952e262e7f16fcf9a8f42fb1a29b1ecc5c5174104e112a5f29a0",
-        "Geo Data": null,
-        "Geo JSON": {
-            "geometry": {
-                "coordinates": [
-                    [
-                        [
-                            74.28474893766473,
-                            31.5078004642444
-                        ],
-                        [
-                            74.3044981417944,
-                            31.50758093422832
-                        ],
-                        [
-                            74.29960377381441,
-                            31.500702065887303
-                        ],
-                        [
-                            74.28474893766473,
-                            31.500116606911867
-                        ],
-                        [
-                            74.2823446867272,
-                            31.504068383850665
-                        ],
-                        [
-                            74.28474893766473,
-                            31.5078004642444
-                        ]
-                    ]
-                ],
-                "type": "Polygon"
-            },
-            "type": "Feature"
-        },
-        "Message": "Field fetched successfully."
-    };
+      const response: any = await makeRequest(
+        `/fetch-field/${unique_id}`,
+        "GET",
+        {
+          "Access-Control-Allow-Origin": "*",
+        }
+      );
+      return response.data;
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -179,7 +140,7 @@ const MapService = {
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
-        "POST",
+        "GET",
         {
           "Access-Control-Allow-Origin": "*",
         },
@@ -199,6 +160,24 @@ const MapService = {
           "Access-Control-Allow-Origin": "*",
         },
         { wkt: wktData }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
+  getPercentageOverlapFields: async (geojson1: string, geojson2: string) => {
+    try {
+      const response: any = await makeRequest(
+        `/get-percentage-overlap-two-fields`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        {
+          geo_id_field_1: geojson1,
+          geo_id_field_2: geojson2,
+        }
       );
       return response.data;
     } catch (error: any) {

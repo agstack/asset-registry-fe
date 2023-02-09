@@ -22,6 +22,11 @@
   flex-direction: column;
 }
 
+.error-msg{
+  color: red;
+  margin-bottom: 10px;
+}
+
 .options {
   margin: 0;
   display: flex;

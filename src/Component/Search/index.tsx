@@ -10,11 +10,15 @@ import { OverlayTrigger, Popover } from "react-bootstrap";
 
 interface IProps {
   setJson: (e: any) => void;
+  getPercentageOverlapFields: (a: string, b: string) => void;
 }
 
 const Search = (props: IProps) => {
   const map = useMap();
   const [searchText, setSearchText] = useState("");
+  const [geo1, setGeo1] = useState("");
+  const [geo2, setGeo2] = useState("");
+  const [isGeoIdError, setIsGeoIdError] = useState(false);
 
   const onSearch = async (searchText: string) => {
     const data = await MapService.getField(searchText);
@@ -57,22 +61,31 @@ const Search = (props: IProps) => {
                   <input
                     type="text"
                     className="searchTerm"
-                    placeholder="ID"
-                    // onChange={(value) => setSearchText(value.target.value)}
+                    placeholder="Geo ID 1"
+                    onChange={(value) => setGeo1(value.target.value)}
                   />
                 </div>
-
                 <div className="search mt-2">
                   <input
                     type="text"
                     className="searchTerm"
-                    placeholder="ID"
-                    // onChange={(value) => setSearchText(value.target.value)}
+                    placeholder="Geo ID 2"
+                    onChange={(value) => setGeo2(value.target.value)}
                   />
                 </div>
+                {isGeoIdError && (
+                  <p className="error-msg">please enter geo IDs</p>
+                )}
                 <button
                   className="popup-btn align-self-center"
-                  onClick={() => {}}
+                  onClick={() => {
+                    if (geo1 !== "" && geo2 !== "") {
+                      setIsGeoIdError(false);
+                      props.getPercentageOverlapFields(geo1, geo2);
+                    } else {
+                      setIsGeoIdError(true);
+                    }
+                  }}
                 >
                   <FaPercent className="search-icon" />
                   Percentage

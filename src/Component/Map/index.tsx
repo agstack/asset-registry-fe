@@ -77,6 +77,11 @@ const Map = () => {
     }
   };
 
+  const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
+    const response = await MapService.getPercentageOverlapFields(geo1, geo2);
+    setJson(response);
+  };
+
   const setJsonData = (data: any) => {
     setJson({ data });
     const geojson = data["Geo JSON"];
@@ -90,7 +95,10 @@ const Map = () => {
     <>
       <div className="map">
         <MapContainer center={center} zoom={31}>
-          <Search setJson={setJsonData} />
+          <Search
+            setJson={setJsonData}
+            getPercentageOverlapFields={getPercentageOverlapFields}
+          />
           <TileLayer
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
             attribution="Map by Google"
@@ -99,12 +107,15 @@ const Map = () => {
             noWrap={true}
           />
           <Control prepend position="topright">
-            <Button color="inherit" onClick={()=>{
-              setJson(null);
-              setField(null);
-              setAlreadyRegisterGeoJson(null);
-              setRequestedGeoJson(null);
-            }}>
+            <Button
+              color="inherit"
+              onClick={() => {
+                setJson(null);
+                setField(null);
+                setAlreadyRegisterGeoJson(null);
+                setRequestedGeoJson(null);
+              }}
+            >
               <BsTrash2 />
             </Button>
           </Control>
