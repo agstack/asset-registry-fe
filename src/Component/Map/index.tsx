@@ -102,6 +102,8 @@ const Map = () => {
             <Button color="inherit" onClick={()=>{
               setJson(null);
               setField(null);
+              setAlreadyRegisterGeoJson(null);
+              setRequestedGeoJson(null);
             }}>
               <BsTrash2 />
             </Button>
