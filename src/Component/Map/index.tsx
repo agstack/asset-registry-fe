@@ -35,6 +35,7 @@ const Map = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState<any>(null);
   const mapRef = useRef<any>(null);
+  const editRef = useRef<any>(null);
 
   const fetchField = async (layer: any, type: string) => {
     const wktData = toWKT(layer);
@@ -91,10 +92,22 @@ const Map = () => {
     }
   };
 
+  const removeAllEditControlLayers = () => {
+    var layerContainer = editRef.current;
+    const layers = layerContainer._layers;
+    const layer_ids = Object.keys(layers);
+    layer_ids.forEach((id, i) => {
+      if (i > 1) {
+        const layer = layers[id];
+        layerContainer.removeLayer(layer);
+      }
+    });
+  };
+
   return (
     <>
       <div className="map">
-        <MapContainer center={center} zoom={31}>
+        <MapContainer center={center} zoom={31} ref={editRef}>
           <Search
             setJson={setJsonData}
             getPercentageOverlapFields={getPercentageOverlapFields}
@@ -114,6 +127,7 @@ const Map = () => {
                 setField(null);
                 setAlreadyRegisterGeoJson(null);
                 setRequestedGeoJson(null);
+                removeAllEditControlLayers();
               }}
             >
               <BsTrash2 />
