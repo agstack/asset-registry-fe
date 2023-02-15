@@ -10,9 +10,17 @@ import Search from "../Search";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
-import { Button, Overlay, Popover } from "react-bootstrap";
+import {
+  Button,
+  Overlay,
+  Popover,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 import Control from "react-leaflet-custom-control";
 import { BsTrash2 } from "react-icons/bs";
+import UserService from "../../Services/UserService";
+import { useNavigate } from "react-router-dom";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -36,27 +44,38 @@ const Map = () => {
   const [target, setTarget] = useState<any>(null);
   const mapRef = useRef<any>(null);
   const editRef = useRef<any>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const nav = useNavigate();
 
   const fetchField = async (layer: any, type: string) => {
     const wktData = toWKT(layer);
-    console.log(wktData);
     if (wktData !== "") {
-      let data;
-      if (type === "rectangle") {
-        data = await MapService.getFieldWithRectangle(wktData);
-      } else if (type === "polygon" || type === "polyline") {
-        data = await MapService.getOverlappingFields(wktData);
-      } else if (
-        type === "marker" ||
-        type === "circlemarker" ||
-        type === "circle"
-      ) {
-        data = await MapService.getFieldWithPoint(wktData);
+      try {
+        let data;
+        if (type === "rectangle") {
+          data = await MapService.getFieldWithRectangle(wktData);
+        } else if (type === "polygon" || type === "polyline") {
+          data = await MapService.getOverlappingFields(wktData);
+        } else if (
+          type === "marker" ||
+          type === "circlemarker" ||
+          type === "circle"
+        ) {
+          data = await MapService.getFieldWithPoint(wktData);
+        } else {
+          data = null;
+        }
+        if (data) {
+          setJson({ data });
+          setField(data["Geo JSON"]);
+        } else {
+          setErrorMsg("Some thing Wrong, please try later!");
+        }
+      } catch (error: any) {
+        setErrorMsg(error.message);
       }
-      setJson({ data });
-      setField(data["Geo JSON"]);
     } else {
-      console.log("Unable to convert layer into WKT!");
+      setErrorMsg("Unable to send Request, please try later!");
     }
   };
 
@@ -65,22 +84,32 @@ const Map = () => {
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      const response = await MapService.registerField(wktData);
-      setJson(response);
-      if (response["Geo JSON"]) {
-        setAlreadyRegisterGeoJson(response["Geo JSON"]);
-      } else {
-        setAlreadyRegisterGeoJson(response["Geo JSON registered"]);
-        setRequestedGeoJson(response["Geo JSON requested"]);
-      }
+      MapService.registerField(wktData)
+        .then((response) => {
+          setJson(response);
+          if (response["Geo JSON"]) {
+            setAlreadyRegisterGeoJson(response["Geo JSON"]);
+          } else {
+            setAlreadyRegisterGeoJson(response["Geo JSON registered"]);
+            setRequestedGeoJson(response["Geo JSON requested"]);
+          }
+        })
+        .catch((error) => {
+          setErrorMsg(error.message);
+        });
     } else {
-      console.log("Unable to convert layer into WKT!");
+      setErrorMsg("Unable to send Request, please try later!");
     }
   };
 
   const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
-    const response = await MapService.getPercentageOverlapFields(geo1, geo2);
-    setJson(response);
+    MapService.getPercentageOverlapFields(geo1, geo2)
+      .then((response) => {
+        setJson(response);
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
   };
 
   const setJsonData = (data: any) => {
@@ -102,6 +131,16 @@ const Map = () => {
         layerContainer.removeLayer(layer);
       }
     });
+  };
+
+  const onLogout = () => {
+    UserService.logout()
+      .then((response) => {
+        nav("/");
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
   };
 
   return (
@@ -131,6 +170,21 @@ const Map = () => {
               }}
             >
               <BsTrash2 />
+            </Button>
+          </Control>
+          <Control prepend position="topright">
+            <Button
+              color="inherit"
+              onClick={() => {
+                setJson(null);
+                setField(null);
+                setAlreadyRegisterGeoJson(null);
+                setRequestedGeoJson(null);
+                removeAllEditControlLayers();
+                onLogout();
+              }}
+            >
+              Logout
             </Button>
           </Control>
           {alreadyRegisterGeoJson !== null && (
@@ -243,6 +297,7 @@ const Map = () => {
             <button
               className="popup-btn"
               onClick={() => {
+                setJson(null);
                 fetchField(target.layer, target.layerType);
               }}
             >
@@ -252,6 +307,7 @@ const Map = () => {
               <button
                 className="popup-btn"
                 onClick={() => {
+                  setJson(null);
                   registerField(target.layer, target.layerType);
                 }}
               >
@@ -261,6 +317,20 @@ const Map = () => {
           </div>
         </Popover>
       </Overlay>
+      <ToastContainer className="p-3" position="top-end">
+        <Toast
+          bg="danger"
+          onClose={() => setErrorMsg("")}
+          autohide
+          show={errorMsg !== ""}
+          delay={2400}
+        >
+          <Toast.Header>
+            <strong className="mr-auto">Error</strong>
+          </Toast.Header>
+          <Toast.Body className="p-3">{errorMsg}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </>
   );
 };
