@@ -54,21 +54,24 @@ const Map = () => {
         let data;
         if (type === "rectangle") {
           data = await MapService.getFieldWithRectangle(wktData);
+          data = data["Geo JSON"];
+          setField(data);
+          setJson({ data });
         } else if (type === "polygon" || type === "polyline") {
           data = await MapService.getOverlappingFields(wktData);
+          data = data["GEO Ids"];
+          setJson({ data });
         } else if (
           type === "marker" ||
           type === "circlemarker" ||
           type === "circle"
         ) {
           data = await MapService.getFieldWithPoint(wktData);
-        } else {
-          data = null;
-        }
-        if (data) {
           setJson({ data });
-          setField(data["Geo JSON"]);
+          setField(data);
         } else {
+          setJson(null);
+          setField(null);
           setErrorMsg("Some thing Wrong, please try later!");
         }
       } catch (error: any) {
@@ -215,7 +218,11 @@ const Map = () => {
             <GeoJSON
               ref={mapRef}
               key={field.toString()}
-              data={field as GeoJSON.Feature}
+              data={
+                field.type === "Feature"
+                  ? (field as GeoJSON.Feature)
+                  : (field as GeoJSON.FeatureCollection)
+              }
               style={{
                 weight: 1.5,
                 fillColor: "#55cf6c",

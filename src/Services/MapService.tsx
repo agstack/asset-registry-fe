@@ -88,6 +88,43 @@ const geoJson = [
       ],
     },
   },
+  {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-71.33, 46.566],
+              [-70.33, 46.566],
+              [-70.33, 47.566],
+              [-71.33, 47.566],
+              [-71.33, 46.566],
+            ],
+          ],
+        },
+      },
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-71.33, 46.566],
+              [-70.33, 46.566],
+              [-70.33, 47.566],
+              [-71.33, 47.566],
+              [-71.33, 46.566],
+            ],
+          ],
+        },
+      },
+    ],
+  },
 ];
 
 const MapService = {
@@ -105,7 +142,6 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  // return Dummy data.
   getFieldWithPoint: async (wktData: string) => {
     try {
       const response: any = await makeRequest(
@@ -116,7 +152,10 @@ const MapService = {
         },
         { wkt: wktData }
       );
-      return response.data;
+      const data = response.data["Fetched fields"]
+        .map((e: any) => Object.values(e))
+        .map((e: any) => e[0]["Geo JSON"]);
+      return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -131,7 +170,10 @@ const MapService = {
         },
         { wkt: wktData }
       );
-      return response.data;
+      const data = response.data["message"]
+        .map((e: any) => Object.values(e))
+        .map((e: any) => e[0]["Geo JSON"]);
+      return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -140,7 +182,7 @@ const MapService = {
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
-        "GET",
+        "POST",
         {
           "Access-Control-Allow-Origin": "*",
         },
