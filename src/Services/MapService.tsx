@@ -142,7 +142,7 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  getFieldWithPoint: async (wktData: string) => {
+  getFieldWithPoint: async (lat: string, lng: string) => {
     try {
       const response: any = await makeRequest(
         `/fetch-fields-for-a-point`,
@@ -150,7 +150,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        { latitude: lat, longitude: lng }
       );
       const data = response.data["Fetched fields"]
         .map((e: any) => Object.values(e))
@@ -160,7 +160,7 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  getFieldWithRectangle: async (wktData: string) => {
+  getFieldWithRectangle: async (lats: string, lngs: string) => {
     try {
       const response: any = await makeRequest(
         `/fetch-bounding-box-fields`,
@@ -168,7 +168,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        { latitudes: lats, longitudes: lngs }
       );
       const data = response.data["message"]
         .map((e: any) => Object.values(e))
@@ -188,7 +188,10 @@ const MapService = {
         },
         { wkt: wktData }
       );
-      return response.data;
+      const data = response.data["Matched Fields"]
+      .map((e: any) => Object.values(e))
+      .map((e: any) => e[0]["Geo JSON"]);
+    return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
