@@ -88,6 +88,43 @@ const geoJson = [
       ],
     },
   },
+  {
+    type: "FeatureCollection",
+    features: [
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-71.33, 46.566],
+              [-70.33, 46.566],
+              [-70.33, 47.566],
+              [-71.33, 47.566],
+              [-71.33, 46.566],
+            ],
+          ],
+        },
+      },
+      {
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-71.33, 46.566],
+              [-70.33, 46.566],
+              [-70.33, 47.566],
+              [-71.33, 47.566],
+              [-71.33, 46.566],
+            ],
+          ],
+        },
+      },
+    ],
+  },
 ];
 
 const MapService = {
@@ -105,8 +142,7 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  // return Dummy data.
-  getFieldWithPoint: async (wktData: string) => {
+  getFieldWithPoint: async (lat: string, lng: string) => {
     try {
       const response: any = await makeRequest(
         `/fetch-fields-for-a-point`,
@@ -114,14 +150,17 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        { latitude: lat, longitude: lng }
       );
-      return response.data;
+      const data = response.data["Fetched fields"]
+        .map((e: any) => Object.values(e))
+        .map((e: any) => e[0]["Geo JSON"]);
+      return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
   },
-  getFieldWithRectangle: async (wktData: string) => {
+  getFieldWithRectangle: async (lats: string, lngs: string) => {
     try {
       const response: any = await makeRequest(
         `/fetch-bounding-box-fields`,
@@ -129,9 +168,12 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        { latitudes: lats, longitudes: lngs }
       );
-      return response.data;
+      const data = response.data["message"]
+        .map((e: any) => Object.values(e))
+        .map((e: any) => e[0]["Geo JSON"]);
+      return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -140,13 +182,16 @@ const MapService = {
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
-        "GET",
+        "POST",
         {
           "Access-Control-Allow-Origin": "*",
         },
         { wkt: wktData }
       );
-      return response.data;
+      const data = response.data["Matched Fields"]
+      .map((e: any) => Object.values(e))
+      .map((e: any) => e[0]["Geo JSON"]);
+    return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
