@@ -53,20 +53,31 @@ const Map = () => {
       try {
         let data;
         if (type === "rectangle") {
-          data = await MapService.getFieldWithRectangle(wktData);
-          data = data["Geo JSON"];
-          setField(data);
+          let lats: string = "";
+          let lngs: string = "";
+          layer._latlngs[0].forEach((latLng: any) => {
+            lats = lats + latLng.lat + " ";
+            lngs = lngs + latLng.lng + " ";
+          });
+          data = await MapService.getFieldWithRectangle(
+            lats.slice(0, -1),
+            lngs.slice(0, -1)
+          );
           setJson({ data });
+          setField(data);
         } else if (type === "polygon" || type === "polyline") {
           data = await MapService.getOverlappingFields(wktData);
-          data = data["GEO Ids"];
           setJson({ data });
+          setField(data);
         } else if (
           type === "marker" ||
           type === "circlemarker" ||
           type === "circle"
         ) {
-          data = await MapService.getFieldWithPoint(wktData);
+          data = await MapService.getFieldWithPoint(
+            layer._latlng.lat,
+            layer._latlng.lng
+          );
           setJson({ data });
           setField(data);
         } else {
@@ -330,7 +341,7 @@ const Map = () => {
           onClose={() => setErrorMsg("")}
           autohide
           show={errorMsg !== ""}
-          delay={2400}
+          delay={3000}
         >
           <Toast.Header>
             <strong className="mr-auto">Error</strong>
