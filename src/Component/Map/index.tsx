@@ -66,7 +66,7 @@ const Map = () => {
           setJson({ data });
           setField(data);
         } else if (type === "polygon" || type === "polyline") {
-          data = await MapService.getOverlappingFields(wktData);
+          data = await MapService.getOverlappingFields(wktData, 13);
           setJson({ data });
           setField(data);
         } else if (
@@ -83,7 +83,7 @@ const Map = () => {
         } else {
           setJson(null);
           setField(null);
-          setErrorMsg("Some thing Wrong, please try later!");
+          setErrorMsg("Something Wrong, please try later!");
         }
       } catch (error: any) {
         setErrorMsg(error.message);
@@ -98,7 +98,7 @@ const Map = () => {
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      MapService.registerField(wktData)
+      MapService.registerField(wktData, 13, 90)
         .then((response) => {
           setJson(response);
           if (response["Geo JSON"]) {

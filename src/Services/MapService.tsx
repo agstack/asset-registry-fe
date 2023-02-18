@@ -178,7 +178,7 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  getOverlappingFields: async (wktData: string) => {
+  getOverlappingFields: async (wktData: string, resolution_level: number) => {
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
@@ -186,17 +186,20 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        {
+          wkt: wktData,
+          resolution_level,
+        }
       );
       const data = response.data["Matched Fields"]
-      .map((e: any) => Object.values(e))
-      .map((e: any) => e[0]["Geo JSON"]);
-    return data;
+        .map((e: any) => Object.values(e))
+        .map((e: any) => e[0]["Geo JSON"]);
+      return data;
     } catch (error: any) {
       throw error?.response?.data;
     }
   },
-  registerField: async (wktData: string) => {
+  registerField: async (wktData: string,resolution_level: number,threshold:number) => {
     try {
       const response: any = await makeRequest(
         `/register-field-boundary`,
@@ -204,7 +207,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData }
+        { wkt: wktData, resolution_level, threshold }
       );
       return response.data;
     } catch (error: any) {
