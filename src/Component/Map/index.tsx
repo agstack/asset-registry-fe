@@ -46,8 +46,14 @@ const Map = () => {
   const editRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const nav = useNavigate();
+  const [resolutionLevel, setResolutionLevel] = useState(13);
+  const [threshold, setThreshold] = useState(90);
+  const [domain, setDomain] = useState("");
+  const [s2Index, setS2Index] = useState("8,13");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchField = async (layer: any, type: string) => {
+    setIsLoading(true);
     const wktData = toWKT(layer);
     if (wktData !== "") {
       try {
@@ -66,7 +72,13 @@ const Map = () => {
           setJson({ data });
           setField(data);
         } else if (type === "polygon" || type === "polyline") {
-          data = await MapService.getOverlappingFields(wktData, 13);
+          data = await MapService.getOverlappingFields(
+            wktData,
+            resolutionLevel,
+            threshold,
+            domain,
+            s2Index
+          );
           setJson({ data });
           setField(data);
         } else if (
@@ -76,7 +88,9 @@ const Map = () => {
         ) {
           data = await MapService.getFieldWithPoint(
             layer._latlng.lat,
-            layer._latlng.lng
+            layer._latlng.lng,
+            s2Index,
+            domain
           );
           setJson({ data });
           setField(data);
@@ -91,15 +105,18 @@ const Map = () => {
     } else {
       setErrorMsg("Unable to send Request, please try later!");
     }
+    setIsLoading(false);
   };
 
   const registerField = async (layer: any, type: string) => {
+    setIsLoading(true);
     setAlreadyRegisterGeoJson(null);
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      MapService.registerField(wktData, 13, 90)
+      MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
         .then((response) => {
+          setIsLoading(false);
           setJson(response);
           if (response["Geo JSON"]) {
             setAlreadyRegisterGeoJson(response["Geo JSON"]);
@@ -109,19 +126,24 @@ const Map = () => {
           }
         })
         .catch((error) => {
+          setIsLoading(false);
           setErrorMsg(error.message);
         });
     } else {
+      setIsLoading(false);
       setErrorMsg("Unable to send Request, please try later!");
     }
   };
 
   const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
+    setIsLoading(true);
     MapService.getPercentageOverlapFields(geo1, geo2)
       .then((response) => {
+        setIsLoading(false);
         setJson(response);
       })
       .catch((error) => {
+        setIsLoading(false);
         setErrorMsg(error.message);
       });
   };
@@ -159,6 +181,11 @@ const Map = () => {
 
   return (
     <>
+      {isLoading && (
+        <div className="spinner">
+          <div className="spinner-border"></div>
+        </div>
+      )}
       <div className="map">
         <MapContainer center={center} zoom={31} ref={editRef}>
           <Search
@@ -206,9 +233,9 @@ const Map = () => {
               data={alreadyRegisterGeoJson as GeoJSON.Feature}
               style={{
                 weight: 1.5,
-                fillColor: "#55cf6c",
-                color: "#55cf6c",
-                fillOpacity: 0.5,
+                fillColor: "#ffff00",
+                color: "#ffff00",
+                fillOpacity: 0,
                 opacity: 0.9,
               }}
             />
@@ -236,9 +263,9 @@ const Map = () => {
               }
               style={{
                 weight: 1.5,
-                fillColor: "#55cf6c",
-                color: "#55cf6c",
-                fillOpacity: 0.5,
+                fillColor: "#ffff00",
+                color: "#ffff00",
+                fillOpacity: 0.0,
                 opacity: 0.9,
               }}
             />
@@ -312,6 +339,44 @@ const Map = () => {
         <Popover id="field-popover" title="Popover bottom">
           <div className="popup-body">
             <p className="popup-heading">Field Actions</p>
+            <p className="mt-2">Resolution level (optional): </p>
+            <div className="threshold">
+              <input
+                type="number"
+                className="thresholdTerm"
+                placeholder="level"
+                onChange={(value) =>
+                  setResolutionLevel(Number(value.target.value))
+                }
+              />
+            </div>
+            <p className="mt-2">threshold (optional): </p>
+            <div className="threshold mt-2">
+              <input
+                type="number"
+                className="thresholdTerm"
+                placeholder="threshold"
+                onChange={(value) => setThreshold(Number(value.target.value))}
+              />
+            </div>
+            <p className="mt-2">Domain (optional): </p>
+            <div className="threshold mt-2">
+              <input
+                type="text"
+                className="thresholdTerm"
+                placeholder="Domain"
+                onChange={(value) => setDomain(value.target.value)}
+              />
+            </div>
+            <p className="mt-2">S2_index (optional): </p>
+            <div className="threshold mt-2">
+              <input
+                type="text"
+                className="thresholdTerm"
+                placeholder="S2_index"
+                onChange={(value) => setS2Index(value.target.value)}
+              />
+            </div>
             <button
               className="popup-btn"
               onClick={() => {

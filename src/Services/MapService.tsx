@@ -142,7 +142,12 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  getFieldWithPoint: async (lat: string, lng: string) => {
+  getFieldWithPoint: async (
+    lat: string,
+    lng: string,
+    s2_index: string,
+    domain: string
+  ) => {
     try {
       const response: any = await makeRequest(
         `/fetch-fields-for-a-point`,
@@ -150,7 +155,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { latitude: lat, longitude: lng }
+        { latitude: lat, longitude: lng, s2_index, domain }
       );
       const data = response.data["Fetched fields"]
         .map((e: any) => Object.values(e))
@@ -178,7 +183,13 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  getOverlappingFields: async (wktData: string, resolution_level: number) => {
+  getOverlappingFields: async (
+    wktData: string,
+    resolution_level: number,
+    threshold: number,
+    domain: string,
+    s2_index: string
+  ) => {
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
@@ -189,6 +200,9 @@ const MapService = {
         {
           wkt: wktData,
           resolution_level,
+          threshold,
+          domain,
+          s2_index,
         }
       );
       const data = response.data["Matched Fields"]
@@ -199,7 +213,12 @@ const MapService = {
       throw error?.response?.data;
     }
   },
-  registerField: async (wktData: string,resolution_level: number,threshold:number) => {
+  registerField: async (
+    wktData: string,
+    resolution_level: number,
+    threshold: number,
+    s2_index: string
+  ) => {
     try {
       const response: any = await makeRequest(
         `/register-field-boundary`,
@@ -207,7 +226,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData, resolution_level, threshold }
+        { wkt: wktData, resolution_level, threshold, s2_index }
       );
       return response.data;
     } catch (error: any) {
