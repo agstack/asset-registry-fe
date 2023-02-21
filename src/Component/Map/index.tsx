@@ -309,6 +309,10 @@ const Map = () => {
                 try {
                   e.layer.on("click", (layer: any) => {
                     setTarget(e);
+                    setDomain("");
+                    setResolutionLevel(13);
+                    setThreshold(90);
+                    setS2Index("8,13");
                     setShowPopup(true);
                   });
                 } catch (err) {
