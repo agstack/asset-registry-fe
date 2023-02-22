@@ -21,6 +21,7 @@ import Control from "react-leaflet-custom-control";
 import { BsTrash2 } from "react-icons/bs";
 import UserService from "../../Services/UserService";
 import { useNavigate } from "react-router-dom";
+import LocationMarker from "./Component/CurrentLocation";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -57,7 +58,7 @@ const Map = () => {
     const wktData = toWKT(layer);
     if (wktData !== "") {
       try {
-        let data;
+        let respones;
         if (type === "rectangle") {
           let lats: string = "";
           let lngs: string = "";
@@ -65,41 +66,42 @@ const Map = () => {
             lats = lats + latLng.lat + " ";
             lngs = lngs + latLng.lng + " ";
           });
-          data = await MapService.getFieldWithRectangle(
+          respones = await MapService.getFieldWithRectangle(
             lats.slice(0, -1),
             lngs.slice(0, -1)
           );
-          setJson({ data });
-          setField(data);
+          setJson(respones.json);
+          setField(respones.data);
         } else if (type === "polygon" || type === "polyline") {
-          data = await MapService.getOverlappingFields(
+          respones = await MapService.getOverlappingFields(
             wktData,
             resolutionLevel,
             threshold,
             domain,
             s2Index
           );
-          setJson({ data });
-          setField(data);
+          setJson(respones.json);
+          setField(respones.data);
         } else if (
           type === "marker" ||
           type === "circlemarker" ||
           type === "circle"
         ) {
-          data = await MapService.getFieldWithPoint(
+          respones = await MapService.getFieldWithPoint(
             layer._latlng.lat,
             layer._latlng.lng,
             s2Index,
             domain
           );
-          setJson({ data });
-          setField(data);
+          setJson(respones.json);
+          setField(respones.data);
         } else {
           setJson(null);
           setField(null);
           setErrorMsg("Something Wrong, please try later!");
         }
       } catch (error: any) {
+        setIsLoading(false);
         setErrorMsg(error.message);
       }
     } else {
@@ -199,6 +201,7 @@ const Map = () => {
             zoomOffset={0}
             noWrap={true}
           />
+          <LocationMarker />
           <Control prepend position="topright">
             <Button
               color="inherit"

@@ -160,7 +160,7 @@ const MapService = {
       const data = response.data["Fetched fields"]
         .map((e: any) => Object.values(e))
         .map((e: any) => e[0]["Geo JSON"]);
-      return data;
+      return { data, json: response.data };
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -178,7 +178,7 @@ const MapService = {
       const data = response.data["message"]
         .map((e: any) => Object.values(e))
         .map((e: any) => e[0]["Geo JSON"]);
-      return data;
+      return { data, json: response.data };
     } catch (error: any) {
       throw error?.response?.data;
     }
@@ -208,7 +208,7 @@ const MapService = {
       const data = response.data["Matched Fields"]
         .map((e: any) => Object.values(e))
         .map((e: any) => e[0]["Geo JSON"]);
-      return data;
+      return { data, json: response.data };
     } catch (error: any) {
       throw error?.response?.data;
     }
