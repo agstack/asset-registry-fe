@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "bootstrap/dist/css/bootstrap.css";
 import L from "leaflet";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Search from "../Search";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
@@ -38,9 +38,7 @@ const Map = () => {
   const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
   const [field, setField] = useState<any>(null);
   const [json, setJson] = useState<any>(null);
-  const [center, setCenter] = useState<L.LatLngExpression>([
-    31.481588, 74.322621,
-  ]);
+  const [center, setCenter] = useState<L.LatLngExpression>([0, 0]);
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState<any>(null);
   const mapRef = useRef<any>(null);
@@ -171,6 +169,12 @@ const Map = () => {
     });
   };
 
+  useEffect(() => {
+    if (editRef.current) {
+      editRef.current.setView(center);
+    }
+  }, [center]);
+
   const onLogout = () => {
     UserService.logout()
       .then((response) => {
@@ -201,7 +205,7 @@ const Map = () => {
             zoomOffset={0}
             noWrap={true}
           />
-          <LocationMarker />
+          <LocationMarker setIsLoading={setIsLoading} setCenter={setCenter} />
           <Control prepend position="topright">
             <Button
               color="inherit"
