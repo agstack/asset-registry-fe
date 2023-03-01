@@ -92,3 +92,30 @@ pre {
   left: 50%;
   top: 45%;
 }
+
+.geosearch {
+  position: fixed !important;
+  left: 80px;
+}
+
+.glass {
+  width: 280px;
+  border-radius: 5px 5px 5px 5px;
+}
+
+.reset {
+  background: #0d6efd;
+  color: white;
+  border-radius: 5px 5px 5px 5px;
+  border: 1px solid #0d6efd;
+}
+
+.results {
+  background: white;
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer;
+}
+
+.leaflet-bar-part {
+  display: none !important;
+}

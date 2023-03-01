@@ -22,6 +22,7 @@ import { BsTrash2 } from "react-icons/bs";
 import UserService from "../../Services/UserService";
 import { useNavigate } from "react-router-dom";
 import LocationMarker from "./Component/CurrentLocation";
+import SearchField from "./Component/SearchLocation";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -169,12 +170,6 @@ const Map = () => {
     });
   };
 
-  useEffect(() => {
-    if (editRef.current) {
-      editRef.current.setView(center);
-    }
-  }, [center]);
-
   const onLogout = () => {
     UserService.logout()
       .then((response) => {
@@ -184,6 +179,12 @@ const Map = () => {
         setErrorMsg(error.message);
       });
   };
+
+  useEffect(() => {
+    if (editRef.current) {
+      editRef.current.setView(center);
+    }
+  }, [center]);
 
   return (
     <>
@@ -198,6 +199,7 @@ const Map = () => {
             setJson={setJsonData}
             getPercentageOverlapFields={getPercentageOverlapFields}
           />
+          <SearchField />
           <TileLayer
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
             attribution="Map by Google"
