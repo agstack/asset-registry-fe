@@ -352,44 +352,78 @@ const Map = () => {
         <Popover id="field-popover" title="Popover bottom">
           <div className="popup-body">
             <p className="popup-heading">Field Actions</p>
-            <p className="mt-2">Resolution level (optional): </p>
-            <div className="threshold">
-              <input
-                type="number"
-                className="thresholdTerm"
-                placeholder="level"
-                onChange={(value) =>
-                  setResolutionLevel(Number(value.target.value))
-                }
-              />
-            </div>
-            <p className="mt-2">threshold (optional): </p>
-            <div className="threshold mt-2">
-              <input
-                type="number"
-                className="thresholdTerm"
-                placeholder="threshold"
-                onChange={(value) => setThreshold(Number(value.target.value))}
-              />
-            </div>
-            <p className="mt-2">Domain (optional): </p>
-            <div className="threshold mt-2">
-              <input
-                type="text"
-                className="thresholdTerm"
-                placeholder="Domain"
-                onChange={(value) => setDomain(value.target.value)}
-              />
-            </div>
-            <p className="mt-2">S2_index (optional): </p>
-            <div className="threshold mt-2">
-              <input
-                type="text"
-                className="thresholdTerm"
-                placeholder="S2_index"
-                onChange={(value) => setS2Index(value.target.value)}
-              />
-            </div>
+            {target && (
+              <>
+                {["polygon", "polyline"].includes(target.layerType) && (
+                  <>
+                    <p className="mt-2">Resolution level (optional): </p>
+                    <div className="threshold">
+                      <input
+                        type="number"
+                        className="thresholdTerm"
+                        placeholder="level"
+                        onChange={(value) =>
+                          setResolutionLevel(Number(value.target.value))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+                {["polygon", "polyline"].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">threshold (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="number"
+                        className="thresholdTerm"
+                        placeholder="threshold"
+                        onChange={(value) =>
+                          setThreshold(Number(value.target.value))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+                {[
+                  "polygon",
+                  "polyline",
+                  "marker",
+                  "circlemarker",
+                  "circle",
+                ].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">Domain (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="text"
+                        className="thresholdTerm"
+                        placeholder="Domain"
+                        onChange={(value) => setDomain(value.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+                {[
+                  "polygon",
+                  "polyline",
+                  "marker",
+                  "circlemarker",
+                  "circle",
+                ].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">S2_index (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="text"
+                        className="thresholdTerm"
+                        placeholder="S2_index"
+                        onChange={(value) => setS2Index(value.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
             <button
               className="popup-btn"
               onClick={() => {
