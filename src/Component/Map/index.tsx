@@ -34,6 +34,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
+  const navigate = useNavigate();
   const [alreadyRegisterGeoJson, setAlreadyRegisterGeoJson] =
     useState<any>(null);
   const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
@@ -180,6 +181,10 @@ const Map = () => {
       });
   };
 
+  const onDashboard = () => {
+    navigate("/dashboard");
+  };
+
   useEffect(() => {
     if (editRef.current) {
       editRef.current.setView(center);
@@ -235,6 +240,21 @@ const Map = () => {
               }}
             >
               Logout
+            </Button>
+          </Control>
+          <Control prepend position="topright">
+            <Button
+              color="inherit"
+              onClick={() => {
+                setJson(null);
+                setField(null);
+                setAlreadyRegisterGeoJson(null);
+                setRequestedGeoJson(null);
+                removeAllEditControlLayers();
+                onDashboard();
+              }}
+            >
+              Dashboard
             </Button>
           </Control>
           {alreadyRegisterGeoJson !== null && (
