@@ -30,6 +30,15 @@
   font-weight: bold;
 }
 
+.back-btn{
+  padding: 20px;
+  color: #007bff;
+}
+
+.back-btn p{
+  width: fit-content;
+}
+
 #month-chart .plot-container .user-select-none {
   width: 50%;
 }

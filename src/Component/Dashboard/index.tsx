@@ -4,6 +4,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import DashboardService from "../../Services/DashboardService";
 import { Toast, ToastContainer } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {}
 interface IMonthCount {
@@ -12,6 +13,7 @@ interface IMonthCount {
 }
 
 const Dashboard = (props: IProps) => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [totalFieldCount, setTotalFieldCount] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
@@ -82,6 +84,7 @@ const Dashboard = (props: IProps) => {
             <h4>Registered Fields: {totalFieldCount}</h4>
           </div>
         </div>
+        <div className="back-btn" ><p onClick={()=>navigate(-1)}>{'<'} back</p></div>
         <Plot
           divId="month-chart"
           data={[
