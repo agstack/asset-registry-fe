@@ -5,12 +5,9 @@ import { useEffect, useState } from "react";
 import DashboardService from "../../Services/DashboardService";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { IMonthCount, ICountryCount } from "../../Utils/interface";
 
 interface IProps {}
-interface IMonthCount {
-  month: string;
-  count: number;
-}
 
 const Dashboard = (props: IProps) => {
   const navigate = useNavigate();
@@ -20,6 +17,10 @@ const Dashboard = (props: IProps) => {
   const [fieldCountByMonth, setFieldCountByMonth] = useState<Array<number>>([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
+  const [fieldCountByCountry, setFieldCountByCountry] = useState<Array<number>>(
+    []
+  );
+  const [countryNames, setCountryNames] = useState<Array<string>>([]);
 
   const last12Months: Array<string> = [];
   for (let i = 0; i < 12; i++) {
@@ -58,9 +59,28 @@ const Dashboard = (props: IProps) => {
       });
   };
 
+  const getFieldCountByCountry = async () => {
+    setIsLoading(true);
+    await DashboardService.getFieldCountByCountry()
+      .then((res) => {
+        let count: Array<number> = [];
+        let country: Array<string> = [];
+        res.forEach((element: ICountryCount) => {
+          count.push(element.count);
+          country.push(element.country ?? "Other");
+        });
+        setCountryNames(country);
+        setFieldCountByCountry(count);
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
+  };
+
   const fetchData = async () => {
     await getTotalFieldCount();
     await getFieldCountByMonth();
+    await getFieldCountByCountry();
     setIsLoading(false);
   };
 
@@ -84,25 +104,47 @@ const Dashboard = (props: IProps) => {
             <h4>Registered Fields: {totalFieldCount}</h4>
           </div>
         </div>
-        <div className="back-btn" ><p onClick={()=>navigate(-1)}>{'<'} back</p></div>
-        <Plot
-          divId="month-chart"
-          data={[
-            {
-              type: "bar",
-              x: last12Months,
-              y: fieldCountByMonth,
-            },
-          ]}
-          layout={{
-            title: "Registered Fields of last 12 month",
-            yaxis: { fixedrange: true },
-            xaxis: { fixedrange: true },
-          }}
-          config={{
-            displayModeBar: false,
-          }}
-        />
+        <div className="back-btn">
+          <p onClick={() => navigate(-1)}>{"<"} back</p>
+        </div>
+        <div className="charts">
+          <Plot
+            divId="month-chart"
+            data={[
+              {
+                type: "bar",
+                x: last12Months,
+                y: fieldCountByMonth,
+              },
+            ]}
+            layout={{
+              title: "Registered Fields of last 12 month",
+              yaxis: { fixedrange: true },
+              xaxis: { fixedrange: true },
+            }}
+            config={{
+              displayModeBar: false,
+            }}
+          />
+          <Plot
+            divId="country-chart"
+            data={[
+              {
+                type: "pie",
+                values: fieldCountByCountry,
+                labels: countryNames,
+              },
+            ]}
+            layout={{
+              title: "Registered Fields Country",
+              yaxis: { fixedrange: true },
+              xaxis: { fixedrange: true },
+            }}
+            config={{
+              displayModeBar: false,
+            }}
+          />
+        </div>
       </div>
       <ToastContainer className="p-3" position="top-end">
         <Toast
