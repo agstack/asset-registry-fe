@@ -7,7 +7,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import L from "leaflet";
 import { useRef, useState, useEffect } from "react";
 import Search from "../Search";
-import { toWKT } from "../../Utils/helper";
+import { toWKT, getCountryFromTimeZone } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
 import {
@@ -52,6 +52,7 @@ const Map = () => {
   const [domain, setDomain] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
+  const [country, setCountry] = useState("");
 
   const fetchField = async (layer: any, type: string) => {
     setIsLoading(true);
@@ -116,7 +117,13 @@ const Map = () => {
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
+      MapService.registerField(
+        wktData,
+        resolutionLevel,
+        threshold,
+        s2Index,
+        country ?? ""
+      )
         .then((response) => {
           setIsLoading(false);
           setJson(response);
@@ -189,6 +196,7 @@ const Map = () => {
     if (editRef.current) {
       editRef.current.setView(center);
     }
+    setCountry(getCountryFromTimeZone());
   }, [center]);
 
   return (
