@@ -1,5 +1,4 @@
 import L from "leaflet";
-import { Countries } from "./constant";
 
 //find Center point bounders.
 export const findCenter = (data: any) => {
@@ -109,14 +108,4 @@ export const fieldStyle = () => {
     marker: style,
     rectangle: style,
   };
-};
-
-export const getCountryFromTimeZone = () => {
-  let userCountry: string = "";
-  if (Intl) {
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const tzArr = userTimeZone.split("/");
-    userCountry = Countries[tzArr[tzArr.length - 1].toString()];
-  }
-  return userCountry;
 };
