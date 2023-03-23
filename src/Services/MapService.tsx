@@ -217,8 +217,7 @@ const MapService = {
     wktData: string,
     resolution_level: number,
     threshold: number,
-    s2_index: string,
-    country: string
+    s2_index: string
   ) => {
     try {
       const response: any = await makeRequest(
@@ -227,7 +226,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { wkt: wktData, resolution_level, threshold, s2_index, country }
+        { wkt: wktData, resolution_level, threshold, s2_index }
       );
       return response.data;
     } catch (error: any) {
