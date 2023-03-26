@@ -11,3 +11,8 @@ export interface ICountryCount {
   country: string;
   count: number;
 }
+
+export interface IDomainCount {
+  domain: string;
+  count: number;
+}
