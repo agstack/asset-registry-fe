@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import DashboardService from "../../Services/DashboardService";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { IMonthCount, ICountryCount } from "../../Utils/interface";
+import { IMonthCount, ICountryCount, IDomainCount } from "../../Utils/interface";
 
 interface IProps {}
 
@@ -20,7 +20,11 @@ const Dashboard = (props: IProps) => {
   const [fieldCountByCountry, setFieldCountByCountry] = useState<Array<number>>(
     []
   );
+  const [fieldCountByDomain, setFieldCountByDomain] = useState<Array<number>>(
+    []
+  );
   const [countryNames, setCountryNames] = useState<Array<string>>([]);
+  const [domainNames, setDomainNames] = useState<Array<string>>([]);
 
   const last12Months: Array<string> = [];
   for (let i = 0; i < 12; i++) {
@@ -77,10 +81,29 @@ const Dashboard = (props: IProps) => {
       });
   };
 
+  const getFieldCountByDomain = async () => {
+    setIsLoading(true);
+    await DashboardService.getFieldCountByDomain()
+      .then((res) => {
+        let count: Array<number> = [];
+        let domain: Array<string> = [];
+        res.forEach((element: IDomainCount) => {
+          count.push(element.count);
+          domain.push(element.domain ?? "Other");
+        });
+        setDomainNames(domain);
+        setFieldCountByDomain(count);
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
+  };
+
   const fetchData = async () => {
     await getTotalFieldCount();
     await getFieldCountByMonth();
     await getFieldCountByCountry();
+    await getFieldCountByDomain();
     setIsLoading(false);
   };
 
@@ -137,6 +160,24 @@ const Dashboard = (props: IProps) => {
             ]}
             layout={{
               title: "Registered Fields Country",
+              yaxis: { fixedrange: true },
+              xaxis: { fixedrange: true },
+            }}
+            config={{
+              displayModeBar: false,
+            }}
+          />
+          <Plot
+            divId="domain-chart"
+            data={[
+              {
+                type: "pie",
+                values: fieldCountByDomain,
+                labels: domainNames,
+              },
+            ]}
+            layout={{
+              title: "Registered Fields Domain",
               yaxis: { fixedrange: true },
               xaxis: { fixedrange: true },
             }}
