@@ -49,7 +49,7 @@ const DashboardService = {
         "/fetch-field-count-by-domain",
         "GET",
         {
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": "https://asset-registry.agstack.org",
         }
       );
       return response.data.count;
