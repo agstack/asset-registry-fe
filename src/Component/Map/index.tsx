@@ -13,6 +13,7 @@ import ReactJson from "react-json-view";
 import {
   Button,
   Overlay,
+  OverlayTrigger,
   Popover,
   Toast,
   ToastContainer,
@@ -157,6 +158,8 @@ const Map = () => {
       });
   };
 
+  console.log("first", localStorage.getItem("token"));
+
   return (
     <>
       <div className="map">
@@ -187,19 +190,44 @@ const Map = () => {
             </Button>
           </Control>
           <Control prepend position="topright">
-            <Button
-              color="inherit"
-              onClick={() => {
-                setJson(null);
-                setField(null);
-                setAlreadyRegisterGeoJson(null);
-                setRequestedGeoJson(null);
-                removeAllEditControlLayers();
-                onLogout();
-              }}
+            <OverlayTrigger
+              placement="left-start"
+              trigger="click"
+              rootClose
+              overlay={
+                <Popover className="login-popover">
+                  <Popover.Body>
+                    <div className="login-form">
+                      <div className="login-form-row">
+                        <p className="login-form-row-label">Email</p>
+                        <input type="text" />
+                      </div>
+                      <div className="login-form-row">
+                        <p className="login-form-row-label">Password</p>
+                        <input type="password" />
+                      </div>
+                      <Button color="inherit" className="login-form-button">
+                        Login
+                      </Button>
+                    </div>
+                  </Popover.Body>
+                </Popover>
+              }
             >
-              Logout
-            </Button>
+              <Button
+                color="inherit"
+                onClick={() => {
+                  setJson(null);
+                  setField(null);
+                  setAlreadyRegisterGeoJson(null);
+                  setRequestedGeoJson(null);
+                  removeAllEditControlLayers();
+                  onLogout();
+                }}
+              >
+                Logout
+              </Button>
+            </OverlayTrigger>
           </Control>
           {alreadyRegisterGeoJson !== null && (
             <GeoJSON
