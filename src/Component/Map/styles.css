@@ -28,10 +28,13 @@ pre {
   top: 0;
   margin: 80px 0 0 12px;
   border-radius: 4px !important;
+  background-color: #ffffffaa !important;
 }
+
 .popup-body {
   padding: 5px 20px;
 }
+
 .popup-heading {
   margin: 0;
   font-size: 14px;
@@ -47,9 +50,11 @@ pre {
   border-radius: 4px;
   background-color: white;
 }
+
 .popup-btn:hover {
   background-color: #f4f4f4;
 }
+
 .popup-btn:active {
   background-color: white;
 }
@@ -71,4 +76,65 @@ pre {
 
 .login-form-row-label {
   margin: 0;
+}
+
+.threshold {
+  margin: 0;
+  padding: 5px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  border-radius: 5px 5px 5px 5px;
+  border: 1px solid black;
+}
+
+.thresholdTerm {
+  background: #fff;
+  width: 100%;
+  border: 0;
+}
+
+.thresholdTerm:focus {
+  outline: none;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 9999;
+  background: #ffffff66;
+}
+
+.spinner-border {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+}
+
+.geosearch {
+  position: fixed !important;
+  left: 80px;
+}
+
+.glass {
+  width: 280px;
+  height: 30px;
+}
+
+.reset {
+  background: #0d6efd;
+  color: white;
+  border-radius: 5px 5px 5px 5px;
+  border: 1px solid #0d6efd;
+}
+
+.results {
+  background: white;
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer;
+}
+
+.leaflet-bar-part {
+  display: none !important;
 }

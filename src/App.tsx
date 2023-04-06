@@ -1,6 +1,7 @@
 import "./App.css";
 import Map from "./Component/Map";
 import { Routes, Route } from "react-router-dom";
+import Dashboard from "./Component/Dashboard/index";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           </div>
         }
       />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }

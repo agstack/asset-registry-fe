@@ -1,0 +1,65 @@
+#dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title-bar {
+  background-color: #f7f7f7;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-title-bar h1 {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.registered-count {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.registered-count h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.back-btn {
+  padding: 20px;
+  color: #007bff;
+}
+
+.back-btn p {
+  width: fit-content;
+}
+
+#month-chart .plot-container .user-select-none {
+  width: 50%;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 9999;
+  background: #ffffff66;
+}
+
+.spinner-border {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+}
+
+.charts {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-evenly;
+}

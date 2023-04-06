@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "bootstrap/dist/css/bootstrap.css";
 import L from "leaflet";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Search from "../Search";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
@@ -22,6 +22,9 @@ import Control from "react-leaflet-custom-control";
 import { BsTrash2 } from "react-icons/bs";
 import UserService from "../../Services/UserService";
 import { useNavigate } from "react-router-dom";
+import LocationMarker from "./Component/CurrentLocation";
+import SearchField from "./Component/SearchLocation";
+import Cookies from "js-cookie";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -33,26 +36,34 @@ L.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
+  const navigate = useNavigate();
   const [alreadyRegisterGeoJson, setAlreadyRegisterGeoJson] =
     useState<any>(null);
   const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
   const [field, setField] = useState<any>(null);
   const [json, setJson] = useState<any>(null);
-  const [center, setCenter] = useState<L.LatLngExpression>([
-    31.481588, 74.322621,
-  ]);
+  const [center, setCenter] = useState<L.LatLngExpression>([0, 0]);
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState<any>(null);
   const mapRef = useRef<any>(null);
   const editRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    Boolean(Cookies.get("access_token_cookie"))
+  );
   const nav = useNavigate();
+  const [resolutionLevel, setResolutionLevel] = useState(13);
+  const [threshold, setThreshold] = useState(90);
+  const [domain, setDomain] = useState("");
+  const [s2Index, setS2Index] = useState("8,13");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchField = async (layer: any, type: string) => {
+    setIsLoading(true);
     const wktData = toWKT(layer);
     if (wktData !== "") {
       try {
-        let data;
+        let respones;
         if (type === "rectangle") {
           let lats: string = "";
           let lngs: string = "";
@@ -60,47 +71,59 @@ const Map = () => {
             lats = lats + latLng.lat + " ";
             lngs = lngs + latLng.lng + " ";
           });
-          data = await MapService.getFieldWithRectangle(
+          respones = await MapService.getFieldWithRectangle(
             lats.slice(0, -1),
             lngs.slice(0, -1)
           );
-          setJson({ data });
-          setField(data);
+          setJson(respones.json);
+          setField(respones.data);
         } else if (type === "polygon" || type === "polyline") {
-          data = await MapService.getOverlappingFields(wktData);
-          setJson({ data });
-          setField(data);
+          respones = await MapService.getOverlappingFields(
+            wktData,
+            resolutionLevel,
+            threshold,
+            domain,
+            s2Index
+          );
+          setJson(respones.json);
+          setField(respones.data);
         } else if (
           type === "marker" ||
           type === "circlemarker" ||
           type === "circle"
         ) {
-          data = await MapService.getFieldWithPoint(
+          respones = await MapService.getFieldWithPoint(
             layer._latlng.lat,
-            layer._latlng.lng
+            layer._latlng.lng,
+            s2Index,
+            domain
           );
-          setJson({ data });
-          setField(data);
+          setJson(respones.json);
+          setField(respones.data);
         } else {
           setJson(null);
           setField(null);
-          setErrorMsg("Some thing Wrong, please try later!");
+          setErrorMsg("Something Wrong, please try later!");
         }
       } catch (error: any) {
+        setIsLoading(false);
         setErrorMsg(error.message);
       }
     } else {
       setErrorMsg("Unable to send Request, please try later!");
     }
+    setIsLoading(false);
   };
 
   const registerField = async (layer: any, type: string) => {
+    setIsLoading(true);
     setAlreadyRegisterGeoJson(null);
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      MapService.registerField(wktData)
+      MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
         .then((response) => {
+          setIsLoading(false);
           setJson(response);
           if (response["Geo JSON"]) {
             setAlreadyRegisterGeoJson(response["Geo JSON"]);
@@ -110,19 +133,24 @@ const Map = () => {
           }
         })
         .catch((error) => {
+          setIsLoading(false);
           setErrorMsg(error.message);
         });
     } else {
+      setIsLoading(false);
       setErrorMsg("Unable to send Request, please try later!");
     }
   };
 
   const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
+    setIsLoading(true);
     MapService.getPercentageOverlapFields(geo1, geo2)
       .then((response) => {
+        setIsLoading(false);
         setJson(response);
       })
       .catch((error) => {
+        setIsLoading(false);
         setErrorMsg(error.message);
       });
   };
@@ -152,22 +180,52 @@ const Map = () => {
     UserService.logout()
       .then((response) => {
         nav("/");
+        setIsLoggedIn(false);
       })
       .catch((error) => {
         setErrorMsg(error.message);
       });
   };
 
-  console.log("first", localStorage.getItem("token"));
+  const onDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  useEffect(() => {
+    if (editRef.current) {
+      editRef.current.setView(center);
+    }
+  }, [center]);
+  const onLogin = (
+    email: string = "hsnminhas@gmail.com",
+    password: string = "Abcd@1234"
+  ) => {
+    const data = { email, password };
+    UserService.login(data)
+      .then((response) => {
+        console.log("response", response);
+        nav("/");
+        setIsLoggedIn(true);
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
+  };
 
   return (
     <>
+      {isLoading && (
+        <div className="spinner">
+          <div className="spinner-border"></div>
+        </div>
+      )}
       <div className="map">
         <MapContainer center={center} zoom={31} ref={editRef}>
           <Search
             setJson={setJsonData}
             getPercentageOverlapFields={getPercentageOverlapFields}
           />
+          <SearchField />
           <TileLayer
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
             attribution="Map by Google"
@@ -175,6 +233,7 @@ const Map = () => {
             zoomOffset={0}
             noWrap={true}
           />
+          <LocationMarker setIsLoading={setIsLoading} setCenter={setCenter} />
           <Control prepend position="topright">
             <Button
               color="inherit"
@@ -195,48 +254,73 @@ const Map = () => {
               trigger="click"
               rootClose
               overlay={
-                <Popover className="login-popover">
-                  <Popover.Body>
-                    <div className="login-form">
-                      <div className="login-form-row">
-                        <p className="login-form-row-label">Email</p>
-                        <input type="text" />
+                !isLoggedIn ? (
+                  <Popover className="login-popover">
+                    <Popover.Body>
+                      <div className="login-form">
+                        <div className="login-form-row">
+                          <p className="login-form-row-label">Email</p>
+                          <input type="email" />
+                        </div>
+                        <div className="login-form-row">
+                          <p className="login-form-row-label">Password</p>
+                          <input type="password" />
+                        </div>
+                        <Button
+                          onClick={() => onLogin()}
+                          color="inherit"
+                          className="login-form-button"
+                        >
+                          Login
+                        </Button>
                       </div>
-                      <div className="login-form-row">
-                        <p className="login-form-row-label">Password</p>
-                        <input type="password" />
-                      </div>
-                      <Button color="inherit" className="login-form-button">
-                        Login
-                      </Button>
-                    </div>
-                  </Popover.Body>
-                </Popover>
+                    </Popover.Body>
+                  </Popover>
+                ) : (
+                  <></>
+                )
               }
             >
               <Button
                 color="inherit"
                 onClick={() => {
-                  setJson(null);
-                  setField(null);
-                  setAlreadyRegisterGeoJson(null);
-                  setRequestedGeoJson(null);
-                  removeAllEditControlLayers();
-                  onLogout();
+                  if (isLoggedIn) {
+                    setJson(null);
+                    setField(null);
+                    setAlreadyRegisterGeoJson(null);
+                    setRequestedGeoJson(null);
+                    removeAllEditControlLayers();
+                    onLogout();
+                  }
                 }}
               >
-                Logout
+                {isLoggedIn ? "Logout" : "Login"}
               </Button>
             </OverlayTrigger>
+          </Control>
+          <Control prepend position="topright">
+            <Button
+              color="inherit"
+              onClick={() => {
+                setJson(null);
+                setField(null);
+                setAlreadyRegisterGeoJson(null);
+                setRequestedGeoJson(null);
+                removeAllEditControlLayers();
+                onDashboard();
+              }}
+            >
+              Dashboard
+            </Button>
           </Control>
           {alreadyRegisterGeoJson !== null && (
             <GeoJSON
               data={alreadyRegisterGeoJson as GeoJSON.Feature}
               style={{
                 weight: 1.5,
-                fillColor: "#55cf6c",
-                color: "#55cf6c",
-                fillOpacity: 0.5,
+                fillColor: "#ffff00",
+                color: "#ffff00",
+                fillOpacity: 0,
                 opacity: 0.9,
               }}
             />
@@ -264,9 +348,9 @@ const Map = () => {
               }
               style={{
                 weight: 1.5,
-                fillColor: "#55cf6c",
-                color: "#55cf6c",
-                fillOpacity: 0.5,
+                fillColor: "#ffff00",
+                color: "#ffff00",
+                fillOpacity: 0.0,
                 opacity: 0.9,
               }}
             />
@@ -310,6 +394,10 @@ const Map = () => {
                 try {
                   e.layer.on("click", (layer: any) => {
                     setTarget(e);
+                    setDomain("");
+                    setResolutionLevel(13);
+                    setThreshold(90);
+                    setS2Index("8,13");
                     setShowPopup(true);
                   });
                 } catch (err) {
@@ -340,6 +428,78 @@ const Map = () => {
         <Popover id="field-popover" title="Popover bottom">
           <div className="popup-body">
             <p className="popup-heading">Field Actions</p>
+            {target && (
+              <>
+                {["polygon", "polyline"].includes(target.layerType) && (
+                  <>
+                    <p className="mt-2">Resolution level (optional): </p>
+                    <div className="threshold">
+                      <input
+                        type="number"
+                        className="thresholdTerm"
+                        placeholder="level"
+                        onChange={(value) =>
+                          setResolutionLevel(Number(value.target.value))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+                {["polygon", "polyline"].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">threshold (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="number"
+                        className="thresholdTerm"
+                        placeholder="threshold"
+                        onChange={(value) =>
+                          setThreshold(Number(value.target.value))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+                {[
+                  "polygon",
+                  "polyline",
+                  "marker",
+                  "circlemarker",
+                  "circle",
+                ].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">Domain (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="text"
+                        className="thresholdTerm"
+                        placeholder="Domain"
+                        onChange={(value) => setDomain(value.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+                {[
+                  "polygon",
+                  "polyline",
+                  "marker",
+                  "circlemarker",
+                  "circle",
+                ].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">S2_index (optional): </p>
+                    <div className="threshold mt-2">
+                      <input
+                        type="text"
+                        className="thresholdTerm"
+                        placeholder="S2_index"
+                        onChange={(value) => setS2Index(value.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
             <button
               className="popup-btn"
               onClick={() => {
