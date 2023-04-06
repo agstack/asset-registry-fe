@@ -57,6 +57,9 @@ const Map = () => {
   const [domain, setDomain] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const fetchField = async (layer: any, type: string) => {
     setIsLoading(true);
@@ -196,20 +199,32 @@ const Map = () => {
       editRef.current.setView(center);
     }
   }, [center]);
-  const onLogin = (
-    email: string = "hsnminhas@gmail.com",
-    password: string = "Abcd@1234"
-  ) => {
-    const data = { email, password };
+
+  const onLogin = () => {
+    const data = { email: loginEmail, password: loginPassword };
     UserService.login(data)
       .then((response) => {
-        console.log("response", response);
         nav("/");
         setIsLoggedIn(true);
       })
       .catch((error) => {
         setErrorMsg(error.message);
       });
+  };
+
+  const onClickLogin = () => {
+    if (!loginEmail || !loginPassword) {
+      setLoginError("Kindly fill all the fields.");
+      return;
+    }
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = regex.test(loginEmail);
+    if (!isValidEmail) {
+      setLoginError("Kindly enter a valid email.");
+      return;
+    }
+    if (loginError) setLoginError("");
+    onLogin();
   };
 
   return (
@@ -260,14 +275,23 @@ const Map = () => {
                       <div className="login-form">
                         <div className="login-form-row">
                           <p className="login-form-row-label">Email</p>
-                          <input type="email" />
+                          <input
+                            type="email"
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                          />
                         </div>
                         <div className="login-form-row">
                           <p className="login-form-row-label">Password</p>
-                          <input type="password" />
+                          <input
+                            type="password"
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                          />
                         </div>
+                        {loginError && (
+                          <p className="login-error">{loginError}</p>
+                        )}
                         <Button
-                          onClick={() => onLogin()}
+                          onClick={() => onClickLogin()}
                           color="inherit"
                           className="login-form-button"
                         >
