@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "bootstrap/dist/css/bootstrap.css";
 import L from "leaflet";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Search from "../Search";
 import { toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
@@ -13,6 +13,7 @@ import ReactJson from "react-json-view";
 import {
   Button,
   Overlay,
+  OverlayTrigger,
   Popover,
   Toast,
   ToastContainer,
@@ -23,6 +24,7 @@ import UserService from "../../Services/UserService";
 import { useNavigate } from "react-router-dom";
 import LocationMarker from "./Component/CurrentLocation";
 import SearchField from "./Component/SearchLocation";
+import Cookies from "js-cookie";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -46,12 +48,18 @@ const Map = () => {
   const mapRef = useRef<any>(null);
   const editRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    Boolean(Cookies.get("access_token_cookie"))
+  );
   const nav = useNavigate();
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
   const [domain, setDomain] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const fetchField = async (layer: any, type: string) => {
     setIsLoading(true);
@@ -116,12 +124,7 @@ const Map = () => {
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
     if (wktData !== "") {
-      MapService.registerField(
-        wktData,
-        resolutionLevel,
-        threshold,
-        s2Index
-      )
+      MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
         .then((response) => {
           setIsLoading(false);
           setJson(response);
@@ -180,6 +183,7 @@ const Map = () => {
     UserService.logout()
       .then((response) => {
         nav("/");
+        setIsLoggedIn(false);
       })
       .catch((error) => {
         setErrorMsg(error.message);
@@ -195,6 +199,33 @@ const Map = () => {
       editRef.current.setView(center);
     }
   }, [center]);
+
+  const onLogin = () => {
+    const data = { email: loginEmail, password: loginPassword };
+    UserService.login(data)
+      .then((response) => {
+        nav("/");
+        setIsLoggedIn(true);
+      })
+      .catch((error) => {
+        setErrorMsg(error.message);
+      });
+  };
+
+  const onClickLogin = () => {
+    if (!loginEmail || !loginPassword) {
+      setLoginError("Kindly fill all the fields.");
+      return;
+    }
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = regex.test(loginEmail);
+    if (!isValidEmail) {
+      setLoginError("Kindly enter a valid email.");
+      return;
+    }
+    if (loginError) setLoginError("");
+    onLogin();
+  };
 
   return (
     <>
@@ -233,19 +264,63 @@ const Map = () => {
             </Button>
           </Control>
           <Control prepend position="topright">
-            <Button
-              color="inherit"
-              onClick={() => {
-                setJson(null);
-                setField(null);
-                setAlreadyRegisterGeoJson(null);
-                setRequestedGeoJson(null);
-                removeAllEditControlLayers();
-                onLogout();
-              }}
+            <OverlayTrigger
+              placement="left-start"
+              trigger="click"
+              rootClose
+              overlay={
+                !isLoggedIn ? (
+                  <Popover className="login-popover">
+                    <Popover.Body>
+                      <div className="login-form">
+                        <div className="login-form-row">
+                          <p className="login-form-row-label">Email</p>
+                          <input
+                            type="email"
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                          />
+                        </div>
+                        <div className="login-form-row">
+                          <p className="login-form-row-label">Password</p>
+                          <input
+                            type="password"
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                          />
+                        </div>
+                        {loginError && (
+                          <p className="login-error">{loginError}</p>
+                        )}
+                        <Button
+                          onClick={() => onClickLogin()}
+                          color="inherit"
+                          className="login-form-button"
+                        >
+                          Login
+                        </Button>
+                      </div>
+                    </Popover.Body>
+                  </Popover>
+                ) : (
+                  <></>
+                )
+              }
             >
-              Logout
-            </Button>
+              <Button
+                color="inherit"
+                onClick={() => {
+                  if (isLoggedIn) {
+                    setJson(null);
+                    setField(null);
+                    setAlreadyRegisterGeoJson(null);
+                    setRequestedGeoJson(null);
+                    removeAllEditControlLayers();
+                    onLogout();
+                  }
+                }}
+              >
+                {isLoggedIn ? "Logout" : "Login"}
+              </Button>
+            </OverlayTrigger>
           </Control>
           <Control prepend position="topright">
             <Button

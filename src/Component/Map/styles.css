@@ -58,6 +58,31 @@ pre {
 .popup-btn:active {
   background-color: white;
 }
+.login-popover {
+  margin-top: 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.login-form-row-label {
+  margin: 0;
+}
+
+.login-error {
+  font-size: 10px;
+  color: red;
+  margin: 0px;
+}
 
 .threshold {
   margin: 0;
