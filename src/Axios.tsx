@@ -1,7 +1,30 @@
 import axios, { AxiosRequestConfig } from "axios";
+import Cookies from "js-cookie";
 
 const BASE_URL = process.env.REACT_APP_ASSET_REGISTRY_BASE_URL || "";
 export const axiosObj = axios.create();
+
+axiosObj.interceptors.request.use((config: AxiosRequestConfig) => {
+  if (config.url === "/logout") {
+    if ("headers" in config && config.headers && "token" in config.headers) {
+      config.headers.token = Cookies.get("refresh_token_cookie");
+    } else {
+      config.headers = { token: Cookies.get("refresh_token_cookie") };
+    }
+  } else {
+    const token = `Bearer ${Cookies.get("access_token_cookie")}`;
+    if (
+      "headers" in config &&
+      config.headers &&
+      "Authorization" in config.headers
+    ) {
+      config.headers.Authorization = token;
+    } else {
+      config.headers = { Authorization: token };
+    }
+  }
+  return config;
+});
 
 export const makeRequest = (
   url: AxiosRequestConfig["url"],
