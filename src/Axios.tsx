@@ -5,6 +5,7 @@ const BASE_URL = process.env.REACT_APP_ASSET_REGISTRY_BASE_URL || "";
 export const axiosObj = axios.create();
 
 axiosObj.interceptors.request.use((config: AxiosRequestConfig) => {
+  if (config.url === "/login") return config;
   const token =
     config.url === "/logout"
       ? `Bearer ${Cookies.get("refresh_token_cookie")}`
