@@ -1,7 +1,7 @@
 import { makeRequest } from "../Axios";
 
 const UserService = {
-  logout: async () => {
+  logout: async (isLoggedIn: boolean) => {
     try {
       const response: any = await makeRequest("/logout", "GET", {
         "Access-Control-Allow-Origin": "*",
