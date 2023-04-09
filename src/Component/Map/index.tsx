@@ -180,7 +180,7 @@ const Map = () => {
   };
 
   const onLogout = () => {
-    UserService.logout()
+    UserService.logout(isLoggedIn)
       .then((response) => {
         nav("/");
         setIsLoggedIn(false);
