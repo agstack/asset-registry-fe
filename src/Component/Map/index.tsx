@@ -48,9 +48,7 @@ const Map = () => {
   const mapRef = useRef<any>(null);
   const editRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    Boolean(Cookies.get("access_token_cookie"))
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const nav = useNavigate();
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
@@ -60,6 +58,17 @@ const Map = () => {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    let token = Cookies.get("access_token_cookie");
+    // Getting cookie returns a string of 'null' in case of no value
+    if (token == null || !token) {
+      UserService.fetchToken().then((res) => {
+        if (res.access_token) setIsLoggedIn(true);
+      });
+    } else setIsLoggedIn(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchField = async (layer: any, type: string) => {
     setIsLoading(true);
@@ -180,7 +189,7 @@ const Map = () => {
   };
 
   const onLogout = () => {
-    UserService.logout(isLoggedIn)
+    UserService.logout()
       .then((response) => {
         nav("/");
         setIsLoggedIn(false);
@@ -264,12 +273,12 @@ const Map = () => {
             </Button>
           </Control>
           <Control prepend position="topright">
-            <OverlayTrigger
-              placement="left-start"
-              trigger="click"
-              rootClose
-              overlay={
-                !isLoggedIn ? (
+            {!isLoggedIn ? (
+              <OverlayTrigger
+                placement="left-start"
+                trigger="click"
+                rootClose
+                overlay={
                   <Popover className="login-popover">
                     <Popover.Body>
                       <div className="login-form">
@@ -300,27 +309,25 @@ const Map = () => {
                       </div>
                     </Popover.Body>
                   </Popover>
-                ) : (
-                  <></>
-                )
-              }
-            >
+                }
+              >
+                <Button color="inherit">Login</Button>
+              </OverlayTrigger>
+            ) : (
               <Button
                 color="inherit"
                 onClick={() => {
-                  if (isLoggedIn) {
-                    setJson(null);
-                    setField(null);
-                    setAlreadyRegisterGeoJson(null);
-                    setRequestedGeoJson(null);
-                    removeAllEditControlLayers();
-                    onLogout();
-                  }
+                  setJson(null);
+                  setField(null);
+                  setAlreadyRegisterGeoJson(null);
+                  setRequestedGeoJson(null);
+                  removeAllEditControlLayers();
+                  onLogout();
                 }}
               >
-                {isLoggedIn ? "Logout" : "Login"}
+                Logout
               </Button>
-            </OverlayTrigger>
+            )}
           </Control>
           <Control prepend position="topright">
             <Button

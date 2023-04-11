@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
+import { KEYS } from "./Constants";
 
 const BASE_URL = process.env.REACT_APP_ASSET_REGISTRY_BASE_URL || "";
 export const axiosObj = axios.create();
@@ -39,12 +40,12 @@ export const makeRequest = (
       .then((response: any) => {
         resolve(response);
         if (url?.includes("logout")) {
-          Cookies.remove("access_token_cookie");
-          Cookies.remove("refresh_token_cookie");
+          Cookies.remove(KEYS.ACCESS_TOKEN_COOKIE);
+          Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
         }
-        if (url?.includes("login")) {
-          Cookies.set('access_token_cookie', response.data.access_token);
-          Cookies.set('refresh_token_cookie', response.data.refresh_token);
+        if (url?.includes("login") || url?.includes("fetch-session-cookies")) {
+          Cookies.set(KEYS.ACCESS_TOKEN_COOKIE, response.data.access_token);
+          Cookies.set(KEYS.REFRESH_TOKEN_COOKIE, response.data.refresh_token);
         }
       })
       .catch((err: any) => {
