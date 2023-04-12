@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import LocationMarker from "./Component/CurrentLocation";
 import SearchField from "./Component/SearchLocation";
 import Cookies from "js-cookie";
+import { KEYS } from "../../Constants";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -60,14 +61,13 @@ const Map = () => {
   const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
-    let token = Cookies.get("access_token_cookie");
-    // Getting cookie returns a string of 'null' in case of no value
-    if (token == null || !token) {
-      UserService.fetchToken().then((res) => {
-        if (res.access_token) setIsLoggedIn(true);
-      });
-    } else setIsLoggedIn(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    UserService.fetchToken().then((res) => {
+      if (res.access_token) setIsLoggedIn(true);
+      else {
+        Cookies.remove(KEYS.ACCESS_TOKEN_COOKIE);
+        Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
+      }
+    });
   }, []);
 
   const fetchField = async (layer: any, type: string) => {
