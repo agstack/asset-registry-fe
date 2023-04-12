@@ -44,8 +44,13 @@ export const makeRequest = (
           Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
         }
         if (url?.includes("login") || url?.includes("fetch-session-cookies")) {
-          Cookies.set(KEYS.ACCESS_TOKEN_COOKIE, response.data.access_token);
-          Cookies.set(KEYS.REFRESH_TOKEN_COOKIE, response.data.refresh_token);
+          if (!response.data.access_token || !response.data.refresh_token) {
+            Cookies.remove(KEYS.ACCESS_TOKEN_COOKIE);
+            Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
+          } else {
+            Cookies.set(KEYS.ACCESS_TOKEN_COOKIE, response.data.access_token);
+            Cookies.set(KEYS.REFRESH_TOKEN_COOKIE, response.data.refresh_token);
+          }
         }
       })
       .catch((err: any) => {
