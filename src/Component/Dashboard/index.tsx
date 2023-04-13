@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import DashboardService from "../../Services/DashboardService";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { IMonthCount, ICountryCount, IDomainCount } from "../../Utils/interface";
+import {
+  IMonthCount,
+  ICountryCount,
+  IDomainCount,
+} from "../../Utils/interface";
+import { fetchTokensApiCall } from "../../Utils/helper";
 
 interface IProps {}
 
@@ -34,6 +39,7 @@ const Dashboard = (props: IProps) => {
 
   const getTotalFieldCount = async () => {
     setIsLoading(true);
+    await fetchTokensApiCall();
     await DashboardService.getTotalFieldCount()
       .then((count) => {
         setTotalFieldCount(count);
@@ -44,6 +50,7 @@ const Dashboard = (props: IProps) => {
   };
   const getFieldCountByMonth = async () => {
     setIsLoading(true);
+    await fetchTokensApiCall();
     await DashboardService.getFieldCountByMonth()
       .then((count) => {
         const data = last12Months.map((month) => {
@@ -65,6 +72,7 @@ const Dashboard = (props: IProps) => {
 
   const getFieldCountByCountry = async () => {
     setIsLoading(true);
+    await fetchTokensApiCall();
     await DashboardService.getFieldCountByCountry()
       .then((res) => {
         let count: Array<number> = [];
@@ -83,6 +91,7 @@ const Dashboard = (props: IProps) => {
 
   const getFieldCountByDomain = async () => {
     setIsLoading(true);
+    await fetchTokensApiCall();
     await DashboardService.getFieldCountByDomain()
       .then((res) => {
         let count: Array<number> = [];

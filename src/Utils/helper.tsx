@@ -1,4 +1,5 @@
 import L from "leaflet";
+import UserService from "../Services/UserService";
 
 //find Center point bounders.
 export const findCenter = (data: any) => {
@@ -108,4 +109,12 @@ export const fieldStyle = () => {
     marker: style,
     rectangle: style,
   };
+};
+
+export const fetchTokensApiCall = async () => {
+  let response = false;
+  await UserService.fetchToken().then((res) => {
+    response = Boolean(res.access_token);
+  });
+  return response;
 };

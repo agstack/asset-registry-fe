@@ -7,7 +7,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import L from "leaflet";
 import { useEffect, useRef, useState } from "react";
 import Search from "../Search";
-import { toWKT } from "../../Utils/helper";
+import { fetchTokensApiCall, toWKT } from "../../Utils/helper";
 import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
 import {
@@ -55,18 +55,18 @@ const Map = () => {
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkLoggedInStatus = async () => {
+    let status = await fetchTokensApiCall();
+    setIsLoggedIn(status);
+  };
+
   useEffect(() => {
-    UserService.fetchToken().then((res) => {
-      if (res.access_token) setIsLoggedIn(true);
-      else {
-        Cookies.remove(KEYS.ACCESS_TOKEN_COOKIE);
-        Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
-      }
-    });
+    checkLoggedInStatus();
   }, []);
 
   const fetchField = async (layer: any, type: string) => {
     setIsLoading(true);
+    await checkLoggedInStatus();
     const wktData = toWKT(layer);
     if (wktData !== "") {
       try {
@@ -124,6 +124,7 @@ const Map = () => {
 
   const registerField = async (layer: any, type: string) => {
     setIsLoading(true);
+    await checkLoggedInStatus();
     setAlreadyRegisterGeoJson(null);
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
@@ -151,6 +152,7 @@ const Map = () => {
 
   const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
     setIsLoading(true);
+    await checkLoggedInStatus();
     MapService.getPercentageOverlapFields(geo1, geo2)
       .then((response) => {
         setIsLoading(false);
@@ -215,6 +217,7 @@ const Map = () => {
         <MapContainer center={center} zoom={31} ref={editRef}>
           <Search
             setJson={setJsonData}
+            onSearchCall={checkLoggedInStatus}
             getPercentageOverlapFields={getPercentageOverlapFields}
           />
           <SearchField />
