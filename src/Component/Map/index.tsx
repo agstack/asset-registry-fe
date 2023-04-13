@@ -13,7 +13,6 @@ import ReactJson from "react-json-view";
 import {
   Button,
   Overlay,
-  OverlayTrigger,
   Popover,
   Toast,
   ToastContainer,
@@ -25,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import LocationMarker from "./Component/CurrentLocation";
 import SearchField from "./Component/SearchLocation";
 import Cookies from "js-cookie";
+import { KEYS } from "../../Constants";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -49,25 +49,20 @@ const Map = () => {
   const editRef = useRef<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const nav = useNavigate();
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
   const [domain, setDomain] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
-    let token = Cookies.get("access_token_cookie");
-    // Getting cookie returns a string of 'null' in case of no value
-    if (token == null || !token) {
-      UserService.fetchToken().then((res) => {
-        if (res.access_token) setIsLoggedIn(true);
-      });
-    } else setIsLoggedIn(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    UserService.fetchToken().then((res) => {
+      if (res.access_token) setIsLoggedIn(true);
+      else {
+        Cookies.remove(KEYS.ACCESS_TOKEN_COOKIE);
+        Cookies.remove(KEYS.REFRESH_TOKEN_COOKIE);
+      }
+    });
   }, []);
 
   const fetchField = async (layer: any, type: string) => {
@@ -189,14 +184,10 @@ const Map = () => {
   };
 
   const onLogout = () => {
-    UserService.logout()
-      .then((response) => {
-        nav("/");
-        setIsLoggedIn(false);
-      })
-      .catch((error) => {
-        setErrorMsg(error.message);
-      });
+    window.open(
+      `${process.env.REACT_APP_USER_REGISTRY_BASE_URL}/home`,
+      "_blank"
+    );
   };
 
   const onDashboard = () => {
@@ -209,31 +200,8 @@ const Map = () => {
     }
   }, [center]);
 
-  const onLogin = () => {
-    const data = { email: loginEmail, password: loginPassword };
-    UserService.login(data)
-      .then((response) => {
-        nav("/");
-        setIsLoggedIn(true);
-      })
-      .catch((error) => {
-        setErrorMsg(error.message);
-      });
-  };
-
   const onClickLogin = () => {
-    if (!loginEmail || !loginPassword) {
-      setLoginError("Kindly fill all the fields.");
-      return;
-    }
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValidEmail = regex.test(loginEmail);
-    if (!isValidEmail) {
-      setLoginError("Kindly enter a valid email.");
-      return;
-    }
-    if (loginError) setLoginError("");
-    onLogin();
+    window.open(process.env.REACT_APP_USER_REGISTRY_BASE_URL, "_blank");
   };
 
   return (
@@ -274,45 +242,9 @@ const Map = () => {
           </Control>
           <Control prepend position="topright">
             {!isLoggedIn ? (
-              <OverlayTrigger
-                placement="left-start"
-                trigger="click"
-                rootClose
-                overlay={
-                  <Popover className="login-popover">
-                    <Popover.Body>
-                      <div className="login-form">
-                        <div className="login-form-row">
-                          <p className="login-form-row-label">Email</p>
-                          <input
-                            type="email"
-                            onChange={(e) => setLoginEmail(e.target.value)}
-                          />
-                        </div>
-                        <div className="login-form-row">
-                          <p className="login-form-row-label">Password</p>
-                          <input
-                            type="password"
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                          />
-                        </div>
-                        {loginError && (
-                          <p className="login-error">{loginError}</p>
-                        )}
-                        <Button
-                          onClick={() => onClickLogin()}
-                          color="inherit"
-                          className="login-form-button"
-                        >
-                          Login
-                        </Button>
-                      </div>
-                    </Popover.Body>
-                  </Popover>
-                }
-              >
-                <Button color="inherit">Login</Button>
-              </OverlayTrigger>
+              <Button onClick={onClickLogin} color="inherit">
+                Login
+              </Button>
             ) : (
               <Button
                 color="inherit"
