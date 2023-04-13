@@ -11,6 +11,7 @@ import { OverlayTrigger, Popover } from "react-bootstrap";
 interface IProps {
   setJson: (e: any) => void;
   getPercentageOverlapFields: (a: string, b: string) => void;
+  onSearchCall: () => Promise<void>;
 }
 
 const Search = (props: IProps) => {
@@ -21,6 +22,7 @@ const Search = (props: IProps) => {
   const [isGeoIdError, setIsGeoIdError] = useState(false);
 
   const onSearch = async (searchText: string) => {
+    await props.onSearchCall();
     const data = await MapService.getField(searchText);
     const centerPoint = findCenter(data["Geo JSON"]);
     if (centerPoint) {
