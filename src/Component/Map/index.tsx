@@ -186,7 +186,7 @@ const Map = () => {
   const onLogout = () => {
     window.open(
       `${process.env.REACT_APP_USER_REGISTRY_BASE_URL}/home`,
-      "_self"
+      "_blank"
     );
   };
 
@@ -201,7 +201,7 @@ const Map = () => {
   }, [center]);
 
   const onClickLogin = () => {
-    window.open(process.env.REACT_APP_USER_REGISTRY_BASE_URL, "_self");
+    window.open(process.env.REACT_APP_USER_REGISTRY_BASE_URL, "_blank");
   };
 
   return (
