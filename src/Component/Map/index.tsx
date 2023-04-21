@@ -12,6 +12,7 @@ import MapService from "../../Services/MapService";
 import ReactJson from "react-json-view";
 import {
   Button,
+  Form,
   Overlay,
   Popover,
   Toast,
@@ -42,6 +43,7 @@ const Map = () => {
   const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
   const [field, setField] = useState<any>(null);
   const [json, setJson] = useState<any>(null);
+  const [domains, setDomains] = useState<any>(null);
   const [center, setCenter] = useState<L.LatLngExpression>([0, 0]);
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState<any>(null);
@@ -61,6 +63,7 @@ const Map = () => {
   };
 
   useEffect(() => {
+    fetchDomains();
     checkLoggedInStatus();
   }, []);
 
@@ -118,6 +121,20 @@ const Map = () => {
       }
     } else {
       setErrorMsg("Unable to send Request, please try later!");
+    }
+    setIsLoading(false);
+  };
+
+  const fetchDomains = async () => {
+    setIsLoading(true);
+    await checkLoggedInStatus();
+    let response;
+    try {
+      response = await MapService.getDomains();
+      setDomains(response["Domains"]);
+    } catch (error: any) {
+      setIsLoading(false);
+      setErrorMsg(error.message);
     }
     setIsLoading(false);
   };
@@ -436,12 +453,28 @@ const Map = () => {
                   <>
                     <p className="mt-2">Domain (optional): </p>
                     <div className="threshold mt-2">
-                      <input
+                      <Form.Select
+                        className="customFormSelect"
+                        aria-label="Default select example"
+                        value={domain ?? "Domain"}
+                        onChange={(value) => setDomain(value.target.value)}
+                      >
+                        <option> Domain</option>
+                        {domains &&
+                          domains.map((domain: any, i: any) => {
+                            return (
+                              <option key={i} value={domain}>
+                                {domain}
+                              </option>
+                            );
+                          })}
+                      </Form.Select>
+                      {/* <input
                         type="text"
                         className="thresholdTerm"
                         placeholder="Domain"
                         onChange={(value) => setDomain(value.target.value)}
-                      />
+                      /> */}
                     </div>
                   </>
                 )}

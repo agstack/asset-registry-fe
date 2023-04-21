@@ -233,6 +233,16 @@ const MapService = {
       throw error?.response?.data;
     }
   },
+  getDomains: async () => {
+    try {
+      const response: any = await makeRequest(`/domains`, "GET", {
+        "Access-Control-Allow-Origin": "*",
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
   getPercentageOverlapFields: async (geojson1: string, geojson2: string) => {
     try {
       const response: any = await makeRequest(
