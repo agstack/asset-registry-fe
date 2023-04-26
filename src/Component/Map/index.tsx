@@ -459,7 +459,7 @@ const Map = () => {
                         value={domain ?? "Domain"}
                         onChange={(value) => setDomain(value.target.value)}
                       >
-                        <option> Domain</option>
+                        <option></option>
                         {domains &&
                           domains.map((domain: any, i: any) => {
                             return (
