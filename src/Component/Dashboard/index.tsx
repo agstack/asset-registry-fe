@@ -131,7 +131,7 @@ const Dashboard = (props: IProps) => {
       )}
       <div id="dashboard">
         <div className="page-title-bar">
-          <h1>Dashboard</h1>
+          <h1>Assets Dashboard</h1>
           <div className="registered-count">
             <h4>Registered Fields: {totalFieldCount}</h4>
           </div>
