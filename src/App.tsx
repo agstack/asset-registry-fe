@@ -1,9 +1,12 @@
 import "./App.css";
 import Map from "./Component/Map";
+import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./Component/Dashboard/index";
 
 function App() {
+  useEffect(() => {
+    document.title = 'AgStack - Asset Registry';}, [])
   return (
     <Routes>
       <Route
