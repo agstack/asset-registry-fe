@@ -43,6 +43,7 @@ const Map = () => {
   const [requestedGeoJson, setRequestedGeoJson] = useState<any>(null);
   const [field, setField] = useState<any>(null);
   const [json, setJson] = useState<any>(null);
+  const [jsonObject, setJsonObject] = useState<object | null>(null);
   const [domains, setDomains] = useState<any>(null);
   const [center, setCenter] = useState<L.LatLngExpression>([0, 0]);
   const [showPopup, setShowPopup] = useState(false);
@@ -56,6 +57,7 @@ const Map = () => {
   const [domain, setDomain] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
+
 
   const checkLoggedInStatus = async () => {
     let status = await fetchTokensApiCall();
@@ -112,6 +114,7 @@ const Map = () => {
           setField(respones.data);
         } else {
           setJson(null);
+          setJsonObject(null);
           setField(null);
           setErrorMsg("Something Wrong, please try later!");
         }
@@ -145,6 +148,7 @@ const Map = () => {
     setAlreadyRegisterGeoJson(null);
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
+    
     if (wktData !== "") {
       MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
         .then((response) => {
@@ -251,6 +255,7 @@ const Map = () => {
               color="inherit"
               onClick={() => {
                 setJson(null);
+                setJsonObject(null);
                 setField(null);
                 setAlreadyRegisterGeoJson(null);
                 setRequestedGeoJson(null);
@@ -270,6 +275,7 @@ const Map = () => {
                 color="inherit"
                 onClick={() => {
                   setJson(null);
+                  setJsonObject(null)
                   setField(null);
                   setAlreadyRegisterGeoJson(null);
                   setRequestedGeoJson(null);
@@ -286,6 +292,7 @@ const Map = () => {
               color="inherit"
               onClick={() => {
                 setJson(null);
+                setJsonObject(null);
                 setField(null);
                 setAlreadyRegisterGeoJson(null);
                 setRequestedGeoJson(null);
@@ -375,13 +382,16 @@ const Map = () => {
               }}
               onCreated={(e) => {
                 try {
+                  setJson(null)
+                  const jsonObject = { WKT: toWKT(e.layer) };
+                  setJsonObject(jsonObject)
                   e.layer.on("click", (layer: any) => {
                     setTarget(e);
                     setDomain("");
                     setResolutionLevel(13);
                     setThreshold(90);
                     setS2Index("8,13");
-                    setShowPopup(true);
+                    setShowPopup(true)
                   });
                 } catch (err) {
                   console.log("ERROR: ", err);
@@ -390,8 +400,9 @@ const Map = () => {
             ></EditControl>
           </FeatureGroup>
         </MapContainer>
+        
         <ReactJson
-          src={json ?? {}}
+          src={json ?? jsonObject ?? {}}
           quotesOnKeys={false}
           displayDataTypes={false}
           displayObjectSize={false}
@@ -469,6 +480,7 @@ const Map = () => {
                             );
                           })}
                       </Form.Select>
+                      
                       {/* <input
                         type="text"
                         className="thresholdTerm"
@@ -503,6 +515,7 @@ const Map = () => {
               className="popup-btn"
               onClick={() => {
                 setJson(null);
+                setJsonObject(null);
                 fetchField(target.layer, target.layerType);
               }}
             >
@@ -513,6 +526,7 @@ const Map = () => {
                 className="popup-btn"
                 onClick={() => {
                   setJson(null);
+                  setJsonObject(null)
                   registerField(target.layer, target.layerType);
                 }}
               >
