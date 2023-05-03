@@ -412,16 +412,7 @@ const Map = () => {
           iconStyle={"square"}
           theme={"grayscale:inverted"}
         />
-        {/* {wktData && <ReactJson src={} /> */}
       </div>
-      {/* <ReactJson
-        
-        show={showPopup}
-        
-        onHide={() => setShowPopup(false)}
-      >
-
-      </ReactJson> */}
       <Overlay
         target={target}
         show={showPopup}
