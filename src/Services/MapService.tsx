@@ -188,6 +188,7 @@ const MapService = {
     resolution_level: number,
     threshold: number,
     domain: string,
+    boundary_type: string,
     s2_index: string
   ) => {
     try {
@@ -202,6 +203,7 @@ const MapService = {
           resolution_level,
           threshold,
           domain,
+          boundary_type,
           s2_index,
         }
       );

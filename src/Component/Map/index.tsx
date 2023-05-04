@@ -55,6 +55,7 @@ const Map = () => {
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
   const [domain, setDomain] = useState("");
+  const [boundaryType, setBoundaryType] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -95,6 +96,7 @@ const Map = () => {
             resolutionLevel,
             threshold,
             domain,
+            boundaryType,
             s2Index
           );
           setJson(respones.json);
@@ -487,6 +489,27 @@ const Map = () => {
                         placeholder="Domain"
                         onChange={(value) => setDomain(value.target.value)}
                       /> */}
+                    </div>
+                  </>
+                )}
+                {[
+                  "polygon",
+                ].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">Boundary Type: </p>
+                    <div className="threshold mt-2">
+                      <Form.Select
+                        className="customFormSelect"
+                        aria-label="Default select example"
+                        value={boundaryType}
+                        onChange={(value) => setBoundaryType(value.target.value)}
+                      >
+                        <option value=""></option>
+                        <option value="manual">Manual</option>
+                        <option value="automated">Automated</option>
+                        
+                      </Form.Select>
+                      
                     </div>
                   </>
                 )}
