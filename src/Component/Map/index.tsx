@@ -55,9 +55,10 @@ const Map = () => {
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
   const [domain, setDomain] = useState("");
+  const [boundaryType, setBoundaryType] = useState("");
+  const [boundaryTypeFetchFields, setBoundaryTypeFetchFields] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
-
 
   const checkLoggedInStatus = async () => {
     let status = await fetchTokensApiCall();
@@ -90,13 +91,18 @@ const Map = () => {
           setJson(respones.json);
           setField(respones.data);
         } else if (type === "polygon" || type === "polyline") {
+          if (type === "polyline") {
+            setBoundaryType("");
+          }
           respones = await MapService.getOverlappingFields(
             wktData,
             resolutionLevel,
             threshold,
             domain,
+            boundaryType,
             s2Index
           );
+          setBoundaryTypeFetchFields(boundaryType);
           setJson(respones.json);
           setField(respones.data);
         } else if (
@@ -104,12 +110,17 @@ const Map = () => {
           type === "circlemarker" ||
           type === "circle"
         ) {
+          if (type === "circle" || type === "circlemarker") {
+            setBoundaryType("");
+          }
           respones = await MapService.getFieldWithPoint(
             layer._latlng.lat,
             layer._latlng.lng,
+            boundaryType,
             s2Index,
             domain
           );
+          setBoundaryTypeFetchFields(boundaryType);
           setJson(respones.json);
           setField(respones.data);
         } else {
@@ -148,7 +159,7 @@ const Map = () => {
     setAlreadyRegisterGeoJson(null);
     setRequestedGeoJson(null);
     const wktData = toWKT(layer);
-    
+
     if (wktData !== "") {
       MapService.registerField(wktData, resolutionLevel, threshold, s2Index)
         .then((response) => {
@@ -275,7 +286,7 @@ const Map = () => {
                 color="inherit"
                 onClick={() => {
                   setJson(null);
-                  setJsonObject(null)
+                  setJsonObject(null);
                   setField(null);
                   setAlreadyRegisterGeoJson(null);
                   setRequestedGeoJson(null);
@@ -336,13 +347,24 @@ const Map = () => {
                   ? (field as GeoJSON.Feature)
                   : (field as GeoJSON.FeatureCollection)
               }
-              style={{
-                weight: 1.5,
-                fillColor: "#ffff00",
-                color: "#ffff00",
-                fillOpacity: 0.0,
-                opacity: 0.9,
-              }}
+              style={
+                boundaryTypeFetchFields === "automated"
+                  ? {
+                      dashArray: "5, 5",
+                      weight: 1.5,
+                      fillColor: "#ffff00",
+                      color: "#ffff00",
+                      fillOpacity: 0.0,
+                      opacity: 0.9,
+                    }
+                  : {
+                      weight: 1.5,
+                      fillColor: "#ffff00",
+                      color: "#ffff00",
+                      fillOpacity: 0.0,
+                      opacity: 0.9,
+                    }
+              }
             />
           )}
           <FeatureGroup>
@@ -382,16 +404,16 @@ const Map = () => {
               }}
               onCreated={(e) => {
                 try {
-                  setJson(null)
+                  setJson(null);
                   const jsonObject = { WKT: toWKT(e.layer) };
-                  setJsonObject(jsonObject)
+                  setJsonObject(jsonObject);
                   e.layer.on("click", (layer: any) => {
                     setTarget(e);
                     setDomain("");
                     setResolutionLevel(13);
                     setThreshold(90);
                     setS2Index("8,13");
-                    setShowPopup(true)
+                    setShowPopup(true);
                   });
                 } catch (err) {
                   console.log("ERROR: ", err);
@@ -400,7 +422,7 @@ const Map = () => {
             ></EditControl>
           </FeatureGroup>
         </MapContainer>
-        
+
         <ReactJson
           src={json ?? jsonObject ?? {}}
           quotesOnKeys={false}
@@ -480,13 +502,32 @@ const Map = () => {
                             );
                           })}
                       </Form.Select>
-                      
+
                       {/* <input
                         type="text"
                         className="thresholdTerm"
                         placeholder="Domain"
                         onChange={(value) => setDomain(value.target.value)}
                       /> */}
+                    </div>
+                  </>
+                )}
+                {["polygon", "marker"].includes(target.layerType ?? "") && (
+                  <>
+                    <p className="mt-2">Boundary Type: </p>
+                    <div className="threshold mt-2">
+                      <Form.Select
+                        className="customFormSelect"
+                        aria-label="Default select example"
+                        value={boundaryType}
+                        onChange={(value) =>
+                          setBoundaryType(value.target.value)
+                        }
+                      >
+                        <option value=""></option>
+                        <option value="manual">Manual</option>
+                        <option value="automated">Automated</option>
+                      </Form.Select>
                     </div>
                   </>
                 )}
@@ -526,7 +567,7 @@ const Map = () => {
                 className="popup-btn"
                 onClick={() => {
                   setJson(null);
-                  setJsonObject(null)
+                  setJsonObject(null);
                   registerField(target.layer, target.layerType);
                 }}
               >
