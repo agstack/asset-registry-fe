@@ -145,6 +145,7 @@ const MapService = {
   getFieldWithPoint: async (
     lat: string,
     lng: string,
+    boundary_type: string,
     s2_index: string,
     domain: string
   ) => {
@@ -155,7 +156,7 @@ const MapService = {
         {
           "Access-Control-Allow-Origin": "*",
         },
-        { latitude: lat, longitude: lng, s2_index, domain }
+        { latitude: lat, longitude: lng, s2_index, domain, boundary_type }
       );
       const data = response.data["Fetched fields"]
         .map((e: any) => Object.values(e))

@@ -91,6 +91,7 @@ const Map = () => {
           setJson(respones.json);
           setField(respones.data);
         } else if (type === "polygon" || type === "polyline") {
+          if (type === "polyline") {setBoundaryType("")}
           respones = await MapService.getOverlappingFields(
             wktData,
             resolutionLevel,
@@ -106,9 +107,11 @@ const Map = () => {
           type === "circlemarker" ||
           type === "circle"
         ) {
+          if (type === "circle" || type === "circlemarker") {setBoundaryType("")}
           respones = await MapService.getFieldWithPoint(
             layer._latlng.lat,
             layer._latlng.lng,
+            boundaryType,
             s2Index,
             domain
           );
@@ -338,8 +341,19 @@ const Map = () => {
                   ? (field as GeoJSON.Feature)
                   : (field as GeoJSON.FeatureCollection)
               }
-              style={{
+              style={
+                json?.boundary_type === "automated" ? 
+                {
+
+                dashArray: "5, 5",
                 weight: 1.5,
+                fillColor: "#ffff00",
+                color: "#ffff00",
+                fillOpacity: 0.0,
+                opacity: 0.9,
+                }:
+                {
+                  weight: 1.5,
                 fillColor: "#ffff00",
                 color: "#ffff00",
                 fillOpacity: 0.0,
@@ -494,6 +508,7 @@ const Map = () => {
                 )}
                 {[
                   "polygon",
+                  "marker",
                 ].includes(target.layerType ?? "") && (
                   <>
                     <p className="mt-2">Boundary Type: </p>
