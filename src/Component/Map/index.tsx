@@ -20,12 +20,9 @@ import {
 } from "react-bootstrap";
 import Control from "react-leaflet-custom-control";
 import { BsTrash2 } from "react-icons/bs";
-import UserService from "../../Services/UserService";
 import { useNavigate } from "react-router-dom";
 import LocationMarker from "./Component/CurrentLocation";
 import SearchField from "./Component/SearchLocation";
-import Cookies from "js-cookie";
-import { KEYS } from "../../Constants";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -102,6 +99,10 @@ const Map = () => {
             boundaryType,
             s2Index
           );
+          // nested object state ref change issue
+          if (field?.length === respones.data.length) {
+            respones.data.push({});
+          }
           setBoundaryTypeFetchFields(boundaryType);
           setJson(respones.json);
           setField(respones.data);
