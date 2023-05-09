@@ -52,7 +52,7 @@ const Map = () => {
   const [resolutionLevel, setResolutionLevel] = useState(13);
   const [threshold, setThreshold] = useState(90);
   const [domain, setDomain] = useState("");
-  const [boundaryType, setBoundaryType] = useState("");
+  const [boundaryType, setBoundaryType] = useState("manual");
   const [boundaryTypeFetchFields, setBoundaryTypeFetchFields] = useState("");
   const [s2Index, setS2Index] = useState("8,13");
   const [isLoading, setIsLoading] = useState(false);
@@ -525,9 +525,9 @@ const Map = () => {
                           setBoundaryType(value.target.value)
                         }
                       >
-                        <option value=""></option>
                         <option value="manual">Manual</option>
                         <option value="automated">Automated</option>
+                        <option value="all">All</option>
                       </Form.Select>
                     </div>
                   </>
