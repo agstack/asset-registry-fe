@@ -191,7 +191,7 @@ const Map = () => {
     const wktData = toWKT(layer);
 
     if (wktData !== "") {
-      MapService.registerPoint(wktData, 30, threshold, s2Index)
+      MapService.registerPoint(wktData, 30, 0, s2Index)
         .then((response) => {
           setIsLoading(false);
           setJson(response);
