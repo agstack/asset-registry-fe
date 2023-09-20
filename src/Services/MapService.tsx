@@ -236,6 +236,26 @@ const MapService = {
       throw error?.response?.data;
     }
   },
+  registerPoint: async (
+    wktData: string,
+    resolution_level: number,
+    threshold: number,
+    s2_index: string
+  ) => {
+    try {
+      const response: any = await makeRequest(
+        `/register-point`,
+        "POST",
+        {
+          "Access-Control-Allow-Origin": "*",
+        },
+        { wkt: wktData, resolution_level, threshold, s2_index }
+      );
+      return response.data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  },
   getDomains: async () => {
     try {
       const response: any = await makeRequest(`/domains`, "GET", {
