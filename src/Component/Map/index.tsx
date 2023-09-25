@@ -183,6 +183,35 @@ const Map = () => {
     }
   };
 
+  const registerPoint = async (layer: any, type: string) => {
+    setIsLoading(true);
+    await checkLoggedInStatus();
+    setAlreadyRegisterGeoJson(null);
+    setRequestedGeoJson(null);
+    const wktData = toWKT(layer);
+
+    if (wktData !== "") {
+      MapService.registerPoint(wktData, 30, 0, s2Index)
+        .then((response) => {
+          setIsLoading(false);
+          setJson(response);
+          if (response["Geo JSON"]) {
+            setAlreadyRegisterGeoJson(response["Geo JSON"]);
+          } else {
+            setAlreadyRegisterGeoJson(response["Geo JSON registered"]);
+            setRequestedGeoJson(response["Geo JSON requested"]);
+          }
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          setErrorMsg(error.message);
+        });
+    } else {
+      setIsLoading(false);
+      setErrorMsg("Unable to send Request, please try later!");
+    }
+  };
+
   const getPercentageOverlapFields = async (geo1: string, geo2: string) => {
     setIsLoading(true);
     await checkLoggedInStatus();
@@ -573,6 +602,18 @@ const Map = () => {
                 }}
               >
                 Register Field
+              </button>
+            )}
+            {target?.layerType === "marker" && (
+              <button
+                className="popup-btn"
+                onClick={() => {
+                  setJson(null);
+                  setJsonObject(null);
+                  registerPoint(target.layer, target.layerType);
+                }}
+              >
+                Register Point
               </button>
             )}
           </div>
