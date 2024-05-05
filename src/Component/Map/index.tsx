@@ -74,43 +74,41 @@ const Map = () => {
     if (wktData !== "") {
       try {
         let respones;
-        if (type === "rectangle") {
-          let lats: string = "";
-          let lngs: string = "";
-          layer._latlngs[0].forEach((latLng: any) => {
-            lats = lats + latLng.lat + " ";
-            lngs = lngs + latLng.lng + " ";
-          });
-          respones = await MapService.getFieldWithRectangle(
-            lats.slice(0, -1),
-            lngs.slice(0, -1)
-          );
-          setJson(respones.json);
-          setField(respones.data);
-        } else if (type === "polygon" || type === "polyline") {
-          if (type === "polyline") {
-            setBoundaryType("");
-          }
-          respones = await MapService.getOverlappingFields(
-            wktData,
-            resolutionLevel,
-            threshold,
-            domain,
-            boundaryType,
-            s2Index
-          );
-          // nested object state ref change issue
-          if (field?.length === respones.data.length) {
-            respones.data.push({});
-          }
-          setBoundaryTypeFetchFields(boundaryType);
-          setJson(respones.json);
-          setField(respones.data);
-        } else if (
-          type === "marker" ||
-          type === "circlemarker" ||
-          type === "circle"
-        ) {
+        // if (type === "rectangle") { // deprecated
+        //   let lats: string = "";
+        //   let lngs: string = "";
+        //   layer._latlngs[0].forEach((latLng: any) => {
+        //     lats = lats + latLng.lat + " ";
+        //     lngs = lngs + latLng.lng + " ";
+        //   });
+        //   respones = await MapService.getFieldWithRectangle(
+        //     lats.slice(0, -1),
+        //     lngs.slice(0, -1)
+        //   );
+        //   setJson(respones.json);
+        //   setField(respones.data);
+        // } else
+        // if (type === "polygon" || type === "polyline") { // deprecated
+        //   if (type === "polyline") {
+        //     setBoundaryType("");
+        //   }
+        //   respones = await MapService.getOverlappingFields(
+        //     wktData,
+        //     resolutionLevel,
+        //     threshold,
+        //     domain,
+        //     boundaryType,
+        //     s2Index
+        //   );
+        //   // nested object state ref change issue
+        //   if (field?.length === respones.data.length) {
+        //     respones.data.push({});
+        //   }
+        //   setBoundaryTypeFetchFields(boundaryType);
+        //   setJson(respones.json);
+        //   setField(respones.data);
+        // } else
+        if (type === "marker" || type === "circlemarker" || type === "circle") {
           if (type === "circle" || type === "circlemarker") {
             setBoundaryType("");
           }
