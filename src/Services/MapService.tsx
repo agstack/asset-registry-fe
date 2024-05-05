@@ -167,6 +167,8 @@ const MapService = {
     }
   },
   getFieldWithRectangle: async (lats: string, lngs: string) => {
+    //deprecated
+    return;
     try {
       const response: any = await makeRequest(
         `/fetch-bounding-box-fields`,
@@ -185,6 +187,7 @@ const MapService = {
     }
   },
   getOverlappingFields: async (
+    // deprecated
     wktData: string,
     resolution_level: number,
     threshold: number,
@@ -192,6 +195,7 @@ const MapService = {
     boundary_type: string,
     s2_index: string
   ) => {
+    return;
     try {
       const response: any = await makeRequest(
         `/fetch-overlapping-fields`,
